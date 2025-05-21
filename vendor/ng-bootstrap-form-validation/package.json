@@ -1,0 +1,37 @@
+{
+  "name": "@mingleats/ng-bootstrap-form-validation",
+  "version": "12.0.0",
+  "engine": {
+    "node": ">=10.0.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^13.3.11",
+    "@angular/core": "^13.3.11"
+  },
+  "dependencies": {
+    "tslib": "^2.3.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "module": "fesm2015/mingleats-ng-bootstrap-form-validation.mjs",
+  "es2020": "fesm2020/mingleats-ng-bootstrap-form-validation.mjs",
+  "esm2020": "esm2020/mingleats-ng-bootstrap-form-validation.mjs",
+  "fesm2020": "fesm2020/mingleats-ng-bootstrap-form-validation.mjs",
+  "fesm2015": "fesm2015/mingleats-ng-bootstrap-form-validation.mjs",
+  "typings": "mingleats-ng-bootstrap-form-validation.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./mingleats-ng-bootstrap-form-validation.d.ts",
+      "esm2020": "./esm2020/mingleats-ng-bootstrap-form-validation.mjs",
+      "es2020": "./fesm2020/mingleats-ng-bootstrap-form-validation.mjs",
+      "es2015": "./fesm2015/mingleats-ng-bootstrap-form-validation.mjs",
+      "node": "./fesm2015/mingleats-ng-bootstrap-form-validation.mjs",
+      "default": "./fesm2020/mingleats-ng-bootstrap-form-validation.mjs"
+    }
+  },
+  "sideEffects": false
+}

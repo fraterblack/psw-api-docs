@@ -1,0 +1,18 @@
+// Specific app styles
+@import "material";
+
+$enable-negative-margins: true;
+
+// Import functions, variables, and mixins needed by other Bootstrap files
+@import 'bootstrap/scss/bootstrap-reboot';
+@import 'bootstrap/scss/bootstrap-utilities';
+@import 'bootstrap/scss/bootstrap-grid';
+
+// Specific app styles
+@import "app";
+
+// Specific view styles
+@import "views";
+
+// Print style
+@import "print";

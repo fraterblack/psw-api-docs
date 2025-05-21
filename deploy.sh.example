@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "Master ref received.  Deploying master branch to production..."
+cd /var/www/psw-application
+git checkout master
+git pull
+
+export PATH=$PATH:/root:/root/bin
+
+# Install dependencias
+yarn install
+
+# Build and start app
+yarn build

@@ -1,0 +1,239 @@
+/**
+* Generated theme by Material Theme Generator
+* https://materialtheme.arcsine.dev
+* Fork at: https://materialtheme.arcsine.dev/?c=YHBhbGV0dGU$YHByaW1hcnk$YF48IzU0NWU2NiIsIj9lcjwjY2NjZmQxIiwiO2VyPCMzYTQyNDl$LCIlPmBePCMwMGExZTAiLCI~ZXI8I2IzZTNmNiIsIjtlcjwjMDA4NWQzfiwid2Fybj5gXjwjZjMxYTAyIiwiP2VyPCNmYmJhYjMiLCI7ZXI8I2VkMGYwMX4sIj9UZXh0PCMwMDAwMDAiLCI~PTwjZmFmYWZhIiwiO1RleHQ8I2ZmZmZmZiIsIjs9PCMyYzJjMmN$LCJmb250cz5bYEA8KC00fixgQDwoLTN$LGBAPCgtMn4sYEA8KC0xfixgQDxoZWFkbGluZX4sYEA8dGl0bGV$LGBAPHN1YiktMn4sYEA8c3ViKS0xfixgQDxib2R5LTJ$LGBAPGJvZHktMX4sYEA8YnV0dG9ufixgQDxjYXB0aW9ufixgQDxpbnB1dCIsInNpemU$bnVsbH1dLCJpY29uczxGaWxsZWQiLCI~bmVzcz50cnVlLCJ2ZXJzaW9uPjEzfQ==
+*/
+
+@use '@angular/material' as mat;
+@use "sass:map";
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+
+// Fonts
+// @import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+// @include mat.all-component-typographies($fontConfig);
+@include mat.core();
+
+$my-custom-input: mat.define-typography-level(
+  $font-family: 'Roboto',
+  $font-weight: 400,
+  $font-size: 14px,
+  $line-height: 1.25,
+  $letter-spacing: 'normal'
+);
+
+$my-typography-config: map.merge(
+    mat.define-typography-config(
+      $body-1: $my-custom-input
+    ),
+    (
+      'input': $my-custom-input
+    )
+);
+
+$app-theme: mat.define-light-theme((
+  typography: $my-typography-config,
+));
+@include mat.all-component-themes($app-theme);
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Custom Material Components
+.app-mat-snackbar {
+  &-warn {
+    &.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+      background-color: #ff0;
+      color: #000;
+
+      .mdc-snackbar__label,
+      .mdc-button__label {
+        color: #000;
+      }
+    }
+  }
+
+  &-error {
+    &.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+      background-color: #e61606;
+      color: #fff;
+
+      .mdc-snackbar__label,
+      .mdc-button__label {
+        color: #fff;
+      }
+    }
+  }
+
+  &-success {
+    &.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+      background-color: #0a930a;
+      color: #fff;
+
+      .mdc-snackbar__label,
+      .mdc-button__label {
+        color: #fff;
+      }
+    }
+  }
+
+  &-info {
+    &.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+      background-color: #1bc9e3;
+      color: #000;
+
+      .mdc-snackbar__label,
+      .mdc-button__label {
+        color: #000;
+      }
+    }
+  }
+}
+
+// Mat-drawer
+.app-mat-drawer {
+  .mat-drawer {
+    background: #f5f5f5;
+  }
+
+  .mat-drawer-content {
+    height: calc(100dvh - 64px);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+  }
+}
+
+@media (max-width: 999px) {
+  .app-mat-drawer {
+    .mat-drawer {
+      background: #fff;
+    }
+
+    .mat-drawer-content {
+      padding: 0;
+    }
+  }
+}
+
+@media (max-width: 599px) {
+  .app-mat-drawer {
+    .mat-drawer-content {
+      height: calc(100dvh - 56px);
+    }
+  }
+}
+
+// Mat-card
+.app-mat-card.mat-mdc-card {
+  .mat-mdc-card-content {
+    margin-bottom: 0;
+  }
+
+  .mat-mdc-card-actions {
+    margin: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+
+// Mat-form-field
+.mat-form-field-subscript-wrapper {
+  margin-top: 3px;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--disabled {
+  background-color: #f4f4f4;
+}
+
+.mdc-text-field--disabled .mdc-floating-label {
+  color: #727272;
+}
+
+.mdc-text-field--disabled .mdc-text-field__input {
+  color: #727272;
+}
+
+// Workaround - Fix field positioning
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+  padding-top: 21px;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-form-field-hint {
+  letter-spacing: 0.05em;
+  font-size: 11px;
+  margin-top: -4px;
+}
+
+// Mat-error
+.mat-mdc-form-field-error {
+  letter-spacing: 0.05em;
+
+  bfv-messages, .error-message {
+    display: inline-block;
+    font-size: 11px;
+    margin-top: -1px;
+    position: absolute;
+    white-space: nowrap;
+
+    &.hidden-overflow {
+      text-overflow: ellipsis;
+      width: calc(100% - 15px);
+      overflow: hidden;
+    }
+
+    .invalid-feedback {
+      display: inline;
+    }
+  }
+}
+
+// Mat-button
+.mdc-button {
+  &.mdc-button--outlined {
+    background-color: #fff;
+  }
+
+  &.mdc-button-large {
+    font-size: 18px;
+    padding: 22px 26px;
+  }
+}
+
+// Mat-dialog
+.mdc-dialog.mat-mdc-dialog-container .mat-mdc-dialog-content {
+  color: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+// Side menu
+.mat-mdc-list-base.mat-mdc-list-base .mdc-list-item__content {
+  overflow: visible;
+}
+
+.mat-mdc-list-base.mat-mdc-list-base .mdc-list-item--with-leading-icon .mdc-list-item__start {
+  margin-right: 16px;
+}
+
+// Mat-chip
+.mat-mdc-chip-listbox {
+  .mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) {
+    background-color: #f6f6f6;
+    border: 1px solid #e0e0e0;
+  }
+
+  .mat-mdc-chip.cdk-focused {
+    border-color: #989898;
+
+    .mat-mdc-chip-focus-overlay {
+      opacity: 0.02;
+    }
+  }
+}

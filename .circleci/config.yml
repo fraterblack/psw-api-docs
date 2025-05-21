@@ -1,0 +1,20 @@
+version: 2.17
+jobs:
+  deploy:
+    machine:
+      enabled: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy over SSH
+          command: ssh -p 22 $SSH_USER@$SSH_HOST "cd /var/www/psw-ponto; ./deploy.sh";
+
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master

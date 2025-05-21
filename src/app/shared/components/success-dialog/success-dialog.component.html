@@ -1,0 +1,30 @@
+<h2 mat-dialog-title class="m-0">
+  <div class="d-inline-block w-100">
+    <div class="row">
+      <div class="col col-spacer"></div>
+      <div class="col col-auto">
+        <button
+          type="button"
+          mat-icon-button
+          color="accent"
+          (click)="onClose()"
+          class="me-n3 mt-1"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</h2>
+<mat-dialog-content>
+  <div class="row">
+    <div
+      class="col col-auto d-none d-md-block pe-0 ps-4 pb-3 pt-1 text-color-success"
+    >
+      <mat-icon fontIcon="check"></mat-icon>
+    </div>
+    <div class="col col-auto pt-0 pb-2 pb-md-3 pt-md-1 pe-md-4">
+      <h3 class="text-color-success">{{ data.message }}</h3>
+    </div>
+  </div>
+</mat-dialog-content>

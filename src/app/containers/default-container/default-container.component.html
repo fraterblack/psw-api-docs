@@ -1,0 +1,71 @@
+<div class="alert-banner offline-connection">
+  Wifi off-line! Verifique sua conexão com a internet.
+</div>
+<app-busy-loader></app-busy-loader>
+<div class="main">
+  <mat-toolbar color="accent" class="p-0">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col col-auto">
+          <button type="button" mat-icon-button (click)="drawer.toggle()">
+            <mat-icon
+              aria-hidden="false"
+              [matBadge]="sideMenuCounter"
+              [matBadgeOverlap]="false"
+              matBadgeColor="primary"
+              [matBadgeHidden]="drawerOpened || !sideMenuCounter"
+              >menu</mat-icon
+            >
+          </button>
+        </div>
+        <span
+          class="col col-spacer d-sm-flex px-0"
+          [ngClass]="{ 'd-none': title }"
+        ></span>
+        <div class="col col-auto pt-1 print-none" *ngIf="!title">
+          <div class="main-logo">
+            <img
+              [src]="'assets/img/brand/logo-white.png'"
+              alt="Ponto System Web"
+            />
+          </div>
+        </div>
+        <div class="col col-auto pt-1" *ngIf="title">
+          <div class="main-title">
+            {{ title }}
+          </div>
+        </div>
+        <span class="col col-spacer d-sm-flex px-0"></span>
+        <div class="col col-auto pt-1"></div>
+      </div>
+    </div>
+  </mat-toolbar>
+  <mat-drawer-container class="app-mat-drawer">
+    <mat-drawer
+      #drawer
+      [mode]="drawerMode"
+      [opened]="drawerOpened"
+      (openedChange)="onOpenedChanged()"
+    >
+      <div class="sidemenu">
+        <ng-scrollbar class="sidemenu-scrollbar">
+          <mat-nav-list>
+            <mat-list-item
+              *ngFor="let item of mainMenu"
+              [routerLink]="[item.route] | route"
+              routerLinkActive="mdc-list-item--activated"
+              (isActiveChange)="this.onRouterLinkActive($event, item)"
+              (click)="onClickMenu(drawer, item)"
+            >
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span class="align-bottom" matListItemTitle>{{ item.name }}</span>
+            </mat-list-item>
+          </mat-nav-list>
+        </ng-scrollbar>
+      </div>
+    </mat-drawer>
+    <mat-drawer-content #matDrawerRef>
+      <router-outlet></router-outlet>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</div>

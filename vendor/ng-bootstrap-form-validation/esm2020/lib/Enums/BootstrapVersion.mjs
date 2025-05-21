@@ -1,0 +1,6 @@
+export var BootstrapVersion;
+(function (BootstrapVersion) {
+    BootstrapVersion[BootstrapVersion["Three"] = 0] = "Three";
+    BootstrapVersion[BootstrapVersion["Four"] = 1] = "Four";
+})(BootstrapVersion || (BootstrapVersion = {}));
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiQm9vdHN0cmFwVmVyc2lvbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uL3Byb2plY3RzL25nLWJvb3RzdHJhcC1mb3JtLXZhbGlkYXRpb24vc3JjL2xpYi9FbnVtcy9Cb290c3RyYXBWZXJzaW9uLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE1BQU0sQ0FBTixJQUFZLGdCQUdYO0FBSEQsV0FBWSxnQkFBZ0I7SUFDMUIseURBQUssQ0FBQTtJQUNMLHVEQUFJLENBQUE7QUFDTixDQUFDLEVBSFcsZ0JBQWdCLEtBQWhCLGdCQUFnQixRQUczQiIsInNvdXJjZXNDb250ZW50IjpbImV4cG9ydCBlbnVtIEJvb3RzdHJhcFZlcnNpb24ge1xuICBUaHJlZSxcbiAgRm91clxufVxuIl19

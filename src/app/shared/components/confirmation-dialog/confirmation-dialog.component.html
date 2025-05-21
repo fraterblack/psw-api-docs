@@ -1,0 +1,33 @@
+<h2 mat-dialog-title class="m-0">
+  <div class="d-inline-block w-100">
+    <div class="row">
+      <div class="col col-auto">{{ data.title || "" }}</div>
+      <div class="col col-spacer"></div>
+    </div>
+  </div>
+</h2>
+<mat-dialog-content>
+  <div class="row">
+    <div class="col">
+      <h3 [innerHTML]="data.message" class="text-center"></h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-auto pe-0">
+      <button
+        class="me-2"
+        type="button"
+        mat-raised-button
+        color="accent"
+        (click)="onConfirm()"
+      >
+        {{ yesBtnText }}
+      </button>
+    </div>
+    <div class="col col-auto">
+      <button class="me-2" type="button" mat-raised-button (click)="onReject()">
+        {{ noBtnText }}
+      </button>
+    </div>
+  </div>
+</mat-dialog-content>
