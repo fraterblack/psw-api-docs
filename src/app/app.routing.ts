@@ -18,7 +18,11 @@ export const routes: Routes = [
     children: [
       {
         path: `${ViewRoute.ABOUT}`,
-        loadChildren: () => import('./views/about/timesheet.module').then(m => m.AboutModule)
+        loadChildren: () => import('./views/about/about.module').then(m => m.AboutModule)
+      },
+      {
+        path: `${ViewRoute.DIRECTORY}`,
+        loadChildren: () => import('./views/directory/directory.module').then(m => m.DirectoryModule)
       },
     ]
   },

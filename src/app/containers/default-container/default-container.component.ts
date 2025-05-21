@@ -24,6 +24,16 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
       icon: 'home',
       name: 'Início',
     },
+    {
+      route: ViewRoute.DIRECTORY,
+      icon: 'list',
+      name: 'Cadastros',
+    },
+    {
+      route: ViewRoute.REPORTS,
+      icon: 'data_object',
+      name: 'Relatórios',
+    },
   ];
 
   private outlet = 'primary';

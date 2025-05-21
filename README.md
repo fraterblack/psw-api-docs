@@ -1,5 +1,7 @@
-# Ponto System Web Ponto
+# API Externa - Ponto System Web Ponto
 
-Employee Interface
+Aplicação desenvolvida usando Angular e Angular Material
 
-Base [CoreUI](https://coreui.io/angular/) Bootstrap Admin Template v2.9.2.
+Para rodar a aplicação use o comando:
+
+`ng serve`
