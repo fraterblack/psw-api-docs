@@ -8,14 +8,7 @@
       <div class="row">
         <div class="col col-auto">
           <button type="button" mat-icon-button (click)="drawer.toggle()">
-            <mat-icon
-              aria-hidden="false"
-              [matBadge]="sideMenuCounter"
-              [matBadgeOverlap]="false"
-              matBadgeColor="primary"
-              [matBadgeHidden]="drawerOpened || !sideMenuCounter"
-              >menu</mat-icon
-            >
+            <mat-icon aria-hidden="false">menu</mat-icon>
           </button>
         </div>
         <span
@@ -36,7 +29,53 @@
           </div>
         </div>
         <span class="col col-spacer d-sm-flex px-0"></span>
-        <div class="col col-auto pt-1"></div>
+        <div class="col col-auto pt-1">
+          <button
+            type="button"
+            mat-mini-fab
+            [matMenuTriggerFor]="menu"
+            class="mat-mdc-elevation-specific mat-elevation-z0"
+          >
+            <mat-icon
+              matListItemIcon
+              color="warn"
+              *ngIf="!authentication?.token"
+              >lock_open</mat-icon
+            >
+            <mat-icon matListItemIcon *ngIf="authentication?.token"
+              >lock</mat-icon
+            >
+          </button>
+          <mat-menu #menu="matMenu">
+            <button
+              type="button"
+              mat-menu-item
+              (click)="onAuthenticate()"
+              *ngIf="!authentication?.token"
+            >
+              <mat-icon>lock</mat-icon>
+              <span>Autenticar (Gerar Token)</span>
+            </button>
+            <button
+              type="button"
+              mat-menu-item
+              (click)="onAuthenticate()"
+              *ngIf="authentication?.token"
+            >
+              <mat-icon>lock</mat-icon>
+              <span>Renovar Token</span>
+            </button>
+            <button
+              type="button"
+              mat-menu-item
+              (click)="onDeauthenticate()"
+              *ngIf="authentication?.token"
+            >
+              <mat-icon>lock_open</mat-icon>
+              <span>Sair</span>
+            </button>
+          </mat-menu>
+        </div>
       </div>
     </div>
   </mat-toolbar>
@@ -48,20 +87,18 @@
       (openedChange)="onOpenedChanged()"
     >
       <div class="sidemenu">
-        <ng-scrollbar class="sidemenu-scrollbar">
-          <mat-nav-list>
-            <mat-list-item
-              *ngFor="let item of mainMenu"
-              [routerLink]="[item.route] | route"
-              routerLinkActive="mdc-list-item--activated"
-              (isActiveChange)="this.onRouterLinkActive($event, item)"
-              (click)="onClickMenu(drawer, item)"
-            >
-              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-              <span class="align-bottom" matListItemTitle>{{ item.name }}</span>
-            </mat-list-item>
-          </mat-nav-list>
-        </ng-scrollbar>
+        <mat-nav-list>
+          <mat-list-item
+            *ngFor="let item of mainMenu"
+            [routerLink]="[item.route] | route"
+            routerLinkActive="mdc-list-item--activated"
+            (isActiveChange)="this.onRouterLinkActive($event, item)"
+            (click)="onClickMenu(drawer, item)"
+          >
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span class="align-bottom" matListItemTitle>{{ item.name }}</span>
+          </mat-list-item>
+        </mat-nav-list>
       </div>
     </mat-drawer>
     <mat-drawer-content #matDrawerRef>

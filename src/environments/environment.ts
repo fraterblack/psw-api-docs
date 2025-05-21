@@ -8,4 +8,8 @@ export const environment = {
   production: false,
   busy_loader_open_delay: 100,
   busy_loader_close_delay: 100,
+
+  core_api: 'http://localhost:3001/api/core',
+  timesheet_api: 'http://localhost:3002/api/timesheet',
+  collector_api: 'http://localhost:3003/api/collector',
 };

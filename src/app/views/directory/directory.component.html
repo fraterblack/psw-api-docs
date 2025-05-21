@@ -1,5 +1,42 @@
 <div class="container-fluid px-3 py-4">
   <div class="row">
-    <div class="col">XXX</div>
+    <div class="col">
+      <mat-form-field color="accent">
+        <mat-label>Endpoint</mat-label>
+        <mat-select
+          [(ngModel)]="endpoint"
+          (selectionChange)="onEndpointChangeChange()"
+          [hideSingleSelectionIndicator]="true"
+        >
+          <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
+            {{ endpoint.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error><bfv-messages></bfv-messages></mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-auto">
+      <button
+        class="me-2"
+        type="button"
+        mat-raised-button
+        color="accent"
+        [disabled]="!endpoint || !authentication?.token"
+        (click)="onSend()"
+      >
+        Enviar
+      </button>
+    </div>
+    <div
+      class="col-auto pt-2"
+      color="warn"
+      *ngIf="!authentication?.token && endpoint"
+    >
+      <i>Faça a autenticação para continuar</i>
+    </div>
+    <col class="col spacer" />
   </div>
 </div>

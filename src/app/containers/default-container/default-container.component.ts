@@ -4,7 +4,11 @@ import { filter, takeUntil } from 'rxjs/operators';
 
 import { Location } from '@angular/common';
 import { MatDrawerContent } from '@angular/material/sidenav';
+import { DialogClosed } from '../../core/interfaces/dialog-closed.interface';
+import { Auth } from '../../core/models/auth.model';
 import { DialogService } from '../../core/services/dialog.service';
+import { AuthStore } from '../../core/stores/auth.store';
+import { AuthenticationViewComponent } from '../../shared/components/authentication-view/authentication-view.component';
 import { Unsubscrable } from '../../shared/views/extendable/unsubscrable';
 import { ViewRoute } from './../../core/enums/view-route.enum';
 @Component({
@@ -35,6 +39,7 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
       name: 'Relatórios',
     },
   ];
+  authentication: Auth;
 
   private outlet = 'primary';
 
@@ -43,9 +48,18 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
+    private authStore: AuthStore,
   ) {
     super();
 
+    // Subscribe to listen auth store changes
+    this.authStore.data
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(auth => {
+        this.authentication = auth;
+      });
+
+    // Watch for route changes
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -74,6 +88,7 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
         }
       });
 
+    // Watch for resize events
     window.addEventListener('resize', () => this.handleDrawerMode());
 
     // Ensure remove dialog=open fragment from URL
@@ -108,6 +123,22 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
     }
 
     return null;
+  }
+
+  onAuthenticate() {
+    this.dialogService
+      .openFullDialog<AuthenticationViewComponent, DialogClosed<any>>(
+        AuthenticationViewComponent,
+        true,
+        {},
+      )
+      .afterClosed()
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(() => { });
+  }
+
+  onDeauthenticate() {
+    this.authStore.reset();
   }
 
   onClickMenu(drawer: any, item: any) {
