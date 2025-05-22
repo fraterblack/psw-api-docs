@@ -8,8 +8,8 @@ import { DialogClosed } from '../../core/interfaces/dialog-closed.interface';
 import { Auth } from '../../core/models/auth.model';
 import { DialogService } from '../../core/services/dialog.service';
 import { AuthStore } from '../../core/stores/auth.store';
-import { AuthenticationViewComponent } from '../../shared/components/authentication-view/authentication-view.component';
 import { Unsubscrable } from '../../shared/views/extendable/unsubscrable';
+import { AuthenticationViewComponent } from '../../views/shared/authentication-view/authentication-view.component';
 import { ViewRoute } from './../../core/enums/view-route.enum';
 @Component({
   selector: 'app-dashboard',

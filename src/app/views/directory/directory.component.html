@@ -4,7 +4,7 @@
       <mat-form-field color="accent">
         <mat-label>Endpoint</mat-label>
         <mat-select
-          [(ngModel)]="endpoint"
+          [(ngModel)]="selectedEndpoint"
           (selectionChange)="onEndpointChangeChange()"
           [hideSingleSelectionIndicator]="true"
         >
@@ -17,26 +17,139 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row" *ngIf="selectedEndpoint">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>
+              <a
+                *ngIf="selectedEndpoint.docUrl"
+                mat-icon-button
+                color="accent"
+                [href]="selectedEndpoint.docUrl"
+                target="_blank"
+                title="Ver a documentação"
+              >
+                <mat-icon>menu_book</mat-icon>
+              </a>
+              <span>
+                {{ selectedEndpoint.service }}{{ selectedEndpoint.path }}
+              </span>
+            </mat-card-title>
+            <mat-card-subtitle>GET</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <!-- FIND ONE PARAMETERS -->
+          <form
+            [formGroup]="parametersFormGroup"
+            *ngIf="selectedEndpoint.type === 'FIND_BY_ID'"
+          >
+            <div class="row mt-2">
+              <div class="col col-xl-2 col-3"><strong>ID</strong></div>
+              <div class="col col-xl-3 col-4">
+                <input
+                  type="text"
+                  formControlName="param1"
+                  placeholder="Informe o ID"
+                  class="w-100"
+                />
+              </div>
+              <div class="col pt-1">
+                <small>Informe o ID que desenha recuperar</small>
+              </div>
+            </div>
+          </form>
+          <!-- LIST PARAMETERS -->
+          <form
+            [formGroup]="parametersFormGroup"
+            *ngIf="
+              selectedEndpoint.type === 'LIST' &&
+              selectedEndpoint.queryParams?.length
+            "
+          >
+            <div class="row mt-2">
+              <div class="col">Parâmetros da URL <i>(query parameters)</i></div>
+            </div>
+            <div
+              class="row mt-2"
+              *ngFor="let param of selectedEndpoint.queryParams; let i = index"
+            >
+              <div class="row mt-2">
+                <div class="col col-xl-2 col-3">
+                  <strong>{{ param.name }}</strong>
+                </div>
+                <div class="col col-xl-3 col-4">
+                  <input
+                    [type]="param.type"
+                    [formControlName]="'param' + (i + 1)"
+                    [placeholder]="param.placeholder || ''"
+                    class="w-100"
+                  />
+                </div>
+                <div class="col pt-1">
+                  <small>{{ param.description }}</small>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-4">
     <div class="col-auto">
       <button
+        *ngIf="!isBusy"
         class="me-2"
         type="button"
         mat-raised-button
         color="accent"
-        [disabled]="!endpoint || !authentication?.token"
+        [disabled]="!selectedEndpoint || !authentication?.token"
         (click)="onSend()"
       >
+        <span> </span>
         Enviar
       </button>
+      <mat-spinner *ngIf="isBusy" color="accent" [diameter]="26"></mat-spinner>
     </div>
     <div
       class="col-auto pt-2"
       color="warn"
-      *ngIf="!authentication?.token && endpoint"
+      *ngIf="!authentication?.token && selectedEndpoint"
     >
       <i>Faça a autenticação para continuar</i>
     </div>
-    <col class="col spacer" />
+  </div>
+
+  <hr />
+
+  <div class="row" *ngIf="requestUrl">
+    <div class="col">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Requisição</mat-card-title>
+            <mat-card-subtitle>[GET] {{ requestUrl }}</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row">
+            <div class="col mt-2"><h3>Resposta</h3></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <app-code-viewer
+                *ngIf="requestResult"
+                language="json"
+                [code]="requestResult"
+              ></app-code-viewer>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
 </div>

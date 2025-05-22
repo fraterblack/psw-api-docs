@@ -17,6 +17,7 @@ import {
 
 import '@angular/common/locales/global/fr';
 import * as ptLocale from '@angular/common/locales/global/pt';
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -28,9 +29,11 @@ import { ContainersModule } from './containers/containers.module';
 import { GlobalErrorHandler } from './core/error-handlers/global-error.handler';
 import { FormGroupComponent } from './shared/components/form-group/form-group.component';
 import { FormControlDirective } from './shared/directives/form-control.directive';
+import { SharedModule } from './shared/shared.module';
 import { CUSTOM_ERRORS } from './translate/validation-error-messages';
 import { ErrorComponent } from './views/error/error.component';
 import { NotFoundComponent } from './views/error/not-found.component';
+import { AuthenticationViewComponent } from './views/shared/authentication-view/authentication-view.component';
 
 const locale = ptLocale;
 
@@ -47,8 +50,10 @@ const maskConfig: Partial<IConfig> = {
 @NgModule({
   imports: [
     ContainersModule,
+    SharedModule,
 
     CommonModule,
+    FormsModule,
     HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
@@ -66,6 +71,7 @@ const maskConfig: Partial<IConfig> = {
   ],
   declarations: [
     AppComponent,
+    AuthenticationViewComponent,
 
     NotFoundComponent,
     ErrorComponent,

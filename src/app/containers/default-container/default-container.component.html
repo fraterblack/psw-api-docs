@@ -35,6 +35,11 @@
             mat-mini-fab
             [matMenuTriggerFor]="menu"
             class="mat-mdc-elevation-specific mat-elevation-z0"
+            [title]="
+              authentication?.licenseId
+                ? 'Licença: ' + authentication.licenseId
+                : 'Autentique-se para testar a API'
+            "
           >
             <mat-icon
               matListItemIcon

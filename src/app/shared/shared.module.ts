@@ -7,7 +7,6 @@ import { NgxMaskDirective, NgxMaskPipe } from 'ngx-mask';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgxMatTimepickerModule } from 'ngx-mat-timepicker';
 import { AngularMaterialModule } from './../angular-material.module';
-import { AuthenticationViewComponent } from './components/authentication-view/authentication-view.component';
 import { BusyLoaderComponent } from './components/busy-loader/busy-loader.component';
 import { CodeViewerComponent } from './components/code-viewer/code-viewer.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
@@ -50,7 +49,6 @@ import { RoutePipe } from './pipes/route.pipe';
     SuccessDialogComponent,
     ConfirmationDialogComponent,
     InformativeDialogComponent,
-    AuthenticationViewComponent,
     CodeViewerComponent,
 
     RoutePipe,
@@ -68,7 +66,6 @@ import { RoutePipe } from './pipes/route.pipe';
     SuccessDialogComponent,
     ConfirmationDialogComponent,
     InformativeDialogComponent,
-    AuthenticationViewComponent,
     CodeViewerComponent,
 
     RoutePipe,

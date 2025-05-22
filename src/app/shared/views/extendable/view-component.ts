@@ -74,7 +74,7 @@ export abstract class ViewComponent extends Unsubscrable {
    * @param error Error message
    * @param labels labels translation
    */
-  protected handleError(error: ValidationError | string, labels?: {}) {
+  protected handleError(error: ValidationError | string, labels?: {}): any | void {
     if (!environment.production) {
       console.log('Error to be handled:');
       console.log(error);
@@ -82,19 +82,19 @@ export abstract class ViewComponent extends Unsubscrable {
 
     if (error && typeof error === 'object' && error.statusCode === 400) {
       if (error.details && Array.isArray(error.details)) {
-        this.handleValidationError<OrmValidationErrorDetail>(error.details, labels);
+        return this.handleValidationError<OrmValidationErrorDetail>(error.details, labels);
       } else if (error.error && isString(error.error) && startsWith(error.error, 'DatabaseError')) {
         this.handleDatabaseError(error.error);
       } else if (error.message && Array.isArray(error.message)) {
         const normalizedErrors = ErrorHelper.normalizeValidationErrors(error.message);
-        this.handleValidationError<ValidationErrorDetail>(normalizedErrors, labels);
+        return this.handleValidationError<ValidationErrorDetail>(normalizedErrors, labels);
       } else if (error.message) {
-        this.handleBadRequestError(error.message);
+        return this.handleBadRequestError(error.message);
       } else {
-        this.handleBadRequestError(error.error || error);
+        return this.handleBadRequestError(error.error || error);
       }
     } else {
-      this.handleNonDefinedError(error);
+      return this.handleNonDefinedError(error);
     }
   }
 
@@ -104,7 +104,7 @@ export abstract class ViewComponent extends Unsubscrable {
    * @param errors Validation errors
    *
    */
-  protected handleValidationError<T>(errors: T[], labels?: {}) {
+  protected handleValidationError<T>(errors: T[], labels?: {}): any | void {
     errors.forEach(e => {
       this.emitErrorMessage(ErrorHelper.parseValidationErrorMessage(e, labels), 10000);
     });
@@ -116,7 +116,7 @@ export abstract class ViewComponent extends Unsubscrable {
    * @param error Validation error
    *
    */
-  protected handleDatabaseError(error: any) {
+  protected handleDatabaseError(error: any): any | void {
     this.emitErrorMessage(ErrorHelper.parseMessage(error), 10000);
   }
 
@@ -126,7 +126,7 @@ export abstract class ViewComponent extends Unsubscrable {
    * @param error Validation error
    *
    */
-  protected handleBadRequestError(error: any) {
+  protected handleBadRequestError(error: any): any | void {
     this.emitErrorMessage(ErrorHelper.parseMessage(error), 10000);
   }
 
@@ -136,7 +136,7 @@ export abstract class ViewComponent extends Unsubscrable {
    * @param error Validation error
    *
    */
-  protected handleNonDefinedError(error: any) {
+  protected handleNonDefinedError(error: any): any | void {
     this.emitErrorMessage(ErrorHelper.parseMessage(error), 10000);
   }
 }
