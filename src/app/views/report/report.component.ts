@@ -93,49 +93,34 @@ export class ReportComponent extends ViewComponent implements OnInit {
 
     this.requestUrl = `${this.selectedEndpoint.service}${this.selectedEndpoint.path}`;
 
+    const body = {
+      "startAt": "2025-04-01",
+      "endAt": "2025-04-30",
+      "includeFiredEmployees": null,
+      "showSummary": true,
+      "showPartialAllowances": false,
+      "columns": ["normal", "t-falta"],
+      "filters": {
+        "collectors": [],
+        "employees": [],
+        "companies": [],
+        "departments": [],
+        "structures": [],
+        "roles": [],
+        "schedules": [],
+        "groups": []
+      }
+    };
+
     this.requestBody = JSON.stringify(
-      {
-        "startAt": "2025-04-01",
-        "endAt": "2025-04-30",
-        "includeFiredEmployees": null,
-        "showSummary": true,
-        "showPartialAllowances": false,
-        "columns": ["normal", "t-falta"],
-        "filters": {
-          "collectors": [],
-          "employees": [],
-          "companies": [],
-          "departments": [],
-          "structures": [],
-          "roles": [],
-          "schedules": [],
-          "groups": []
-        }
-      },
+      body,
       null,
       2,
     );
 
     const requestResult = await this.runRequest(
       this.requestUrl,
-      {
-        "startAt": "2025-04-01",
-        "endAt": "2025-04-30",
-        "includeFiredEmployees": null,
-        "showSummary": true,
-        "showPartialAllowances": false,
-        "columns": ["normal", "t-falta"],
-        "filters": {
-          "collectors": [],
-          "employees": [],
-          "companies": [],
-          "departments": [],
-          "structures": [],
-          "roles": [],
-          "schedules": [],
-          "groups": []
-        }
-      },
+      body,
     );
 
     this.requestResult = JSON.stringify(

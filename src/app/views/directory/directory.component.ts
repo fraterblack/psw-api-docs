@@ -414,6 +414,14 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         path: '/external/v1/times-off/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#986c8714-3199-4399-a578-0bc6eae3a2cd',
       },
+      // Calculation Columns
+      {
+        type: 'LIST',
+        name: 'Colunas de Cálculos (Listar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/calculation-columns',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee',
+      },
     ];
   }
 
