@@ -31,7 +31,8 @@
               "dayjs",
               "leaflet",
               "@aws-sdk",
-              "buffer"
+              "buffer",
+              "event-source-polyfill/src/eventsource.min.js"
             ],
             "aot": false,
             "vendorChunk": true,

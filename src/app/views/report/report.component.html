@@ -1,0 +1,166 @@
+<div class="container-fluid px-3 py-4">
+  <div class="row">
+    <div class="col">
+      <mat-form-field color="accent">
+        <mat-label>Endpoint</mat-label>
+        <mat-select
+          [(ngModel)]="selectedEndpoint"
+          (selectionChange)="onEndpointChangeChange()"
+          [hideSingleSelectionIndicator]="true"
+        >
+          <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
+            {{ endpoint.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error><bfv-messages></bfv-messages></mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="selectedEndpoint">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>
+              <a
+                *ngIf="selectedEndpoint.docUrl"
+                mat-icon-button
+                color="accent"
+                [href]="selectedEndpoint.docUrl"
+                target="_blank"
+                title="Ver a documentação"
+              >
+                <mat-icon>menu_book</mat-icon>
+              </a>
+              <span>
+                {{ selectedEndpoint.service }}{{ selectedEndpoint.path }}
+              </span>
+            </mat-card-title>
+            <mat-card-subtitle>POST</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content> xxxxx </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-auto">
+      <button
+        *ngIf="!isBusy"
+        class="me-2"
+        type="button"
+        mat-raised-button
+        color="accent"
+        [disabled]="!selectedEndpoint || !authentication?.token"
+        (click)="onSend()"
+      >
+        <span> </span>
+        Enviar
+      </button>
+      <mat-spinner *ngIf="isBusy" color="accent" [diameter]="26"></mat-spinner>
+    </div>
+    <div
+      class="col-auto pt-2"
+      color="warn"
+      *ngIf="!authentication?.token && selectedEndpoint"
+    >
+      <i>Faça a autenticação para continuar</i>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="row" *ngIf="requestUrl">
+    <div class="col">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Requisição</mat-card-title>
+            <mat-card-subtitle>[POST] {{ requestUrl }}</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row" *ngIf="requestBody">
+            <div class="col mt-2"><h3>Body</h3></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <app-code-viewer
+                *ngIf="requestBody"
+                language="json"
+                [code]="requestBody"
+              ></app-code-viewer>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mt-2"><h3>Resposta</h3></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <app-code-viewer
+                *ngIf="requestResult"
+                language="json"
+                [code]="requestResult"
+              ></app-code-viewer>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-3" *ngIf="reportId" id="reportProgress">
+    <div class="col">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Dados do Relatório</mat-card-title>
+            <mat-card-subtitle>
+              <a
+                mat-icon-button
+                color="accent"
+                href="https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#1d1d2743-7e27-4808-ad52-2c50bab01edd"
+                target="_blank"
+                title="Ver a documentação"
+              >
+                <mat-icon>menu_book</mat-icon>
+              </a>
+
+              [GET]
+              {{ selectedEndpoint?.service }}/v2/async-processing-monitor/{{
+                reportId
+              }}
+              <i class="ms-2">Server-Sent Events (SSE)</i></mat-card-subtitle
+            >
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row" *ngIf="reportProgress">
+            <div class="col">
+              <mat-progress-bar
+                class="mt-3"
+                color="primary"
+                mode="determinate"
+                [value]="reportProgress.progress"
+                bufferValue="50"
+              >
+              </mat-progress-bar>
+              <p>{{ reportProgress.processed }}/{{ reportProgress.total }}</p>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="reportData">
+            <div class="col">
+              <app-code-viewer
+                language="json"
+                [code]="reportData"
+              ></app-code-viewer>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
