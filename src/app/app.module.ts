@@ -1,5 +1,5 @@
 import { CommonModule, HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ErrorHandler, LOCALE_ID, NgModule, isDevMode } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import dayjs from 'dayjs';
@@ -27,6 +27,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing';
 import { ContainersModule } from './containers/containers.module';
 import { GlobalErrorHandler } from './core/error-handlers/global-error.handler';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { FormGroupComponent } from './shared/components/form-group/form-group.component';
 import { FormControlDirective } from './shared/directives/form-control.directive';
 import { SharedModule } from './shared/shared.module';
@@ -77,6 +78,11 @@ const maskConfig: Partial<IConfig> = {
     ErrorComponent,
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     {
       provide: LocationStrategy,
       useClass: HashLocationStrategy

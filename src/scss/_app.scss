@@ -22,6 +22,41 @@ table {
   margin-bottom: 20px;
 }
 
+.input-field {
+  height: 30px;
+  padding-left: 8px;
+  padding-right: 8px;
+  outline: none;
+  border: 1px solid #9e9e9e;
+  border-radius: 4px;
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: #000;
+  }
+
+  &:focus {
+    border-color: #607d8b;
+    outline: 1px solid #607d8b;
+  }
+}
+
+.checkbox-field {
+  width: 18px;
+  height: 18px;
+  outline: none;
+  border: 1px solid #9e9e9e;
+
+  &:hover {
+    border-color: #000;
+  }
+
+  &:focus {
+    border-color: #607d8b;
+    outline: 2px solid #607d8b;
+  }
+}
+
 // Global banner
 .alert-banner {
   position: sticky;
@@ -145,38 +180,6 @@ table {
   }
 }
 
-// Alert
-.app-alert {
-  padding: 7px 10px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  border: 1px solid #3f5560;
-
-  &.app-alert-warning {
-    background: #feffc3;
-    border-color: #dcdda0;
-  }
-
-  &.app-alert-danger {
-    background: #ffd4c3;
-    border-color: #ff7d7d;
-  }
-
-  &.app-alert-info {
-    background: #c3e6ff;
-    border-color: #9dc1db;
-  }
-}
-
-// Row with active register
-.active-register-company {
-  background: #e5e5e5;
-  text-align: center;
-  line-height: 30px;
-  height: 30px;
-  overflow: hidden;
-}
-
 // Full dialog
 app-full-dialog {
   display: block;
@@ -281,31 +284,6 @@ app-full-dialog {
   line-height: 23px;
 }
 
-// Card list
-.card-list {
-  &-item {
-    &.muted-item {
-      .mat-mdc-card-content {
-        opacity: 0.3;
-        background: #dddddd;
-      }
-    }
-
-    &.clickable-item:not(.muted-item) {
-      cursor: pointer;
-
-      &:hover {
-        .mat-mdc-card-content {
-          background: #eee !important;
-          transition-property: background;
-          transition-duration: 0.3s;
-          transition-timing-function: linear;
-        }
-      }
-    }
-  }
-}
-
 // Content loader
 .content-loader {
   height: 0;
@@ -351,91 +329,6 @@ app-full-dialog {
   tr:nth-child(even) {
     background-color: #f4f4f4;
   }
-}
-
-// Camera
-.camera {
-  .camera-content {
-    position: relative;
-    padding-bottom: 10px;
-
-    &-empty {
-      background: #efefef;
-    }
-  }
-
-  .image-preview {
-    display: block;
-    width: 100%;
-    max-width: 640px;
-    min-height: 200px;
-
-    video {
-      width: 100%;
-      height: auto;
-      min-height: 200px;
-    }
-  }
-
-  .captured-image-viewer {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    max-width: 640px;
-    z-index: 999;
-
-    img {
-      width: 100%;
-      max-width: 640px;
-    }
-  }
-
-  .captured-image-actions {
-    padding: 10px;
-    background: #efefef;
-    text-align: center;
-    height: 56px;
-    margin-top: -6px;
-    z-index: 999;
-    position: relative;
-    max-width: 640px;
-
-    &-empty {
-      background: transparent;
-    }
-  }
-
-  .not-allowed-message {
-    position: absolute;
-    top: 40%;
-    width: 100%;
-    text-align: center;
-  }
-}
-
-// File Selector
-.file-selector {
-  position: relative;
-
-  &-input {
-    position: absolute;
-    cursor: pointer !important;
-    width: 100%;
-    z-index: 2;
-    height: 36px;
-    background: #000;
-    opacity: 0;
-  }
-}
-
-// Grid filter
-.grid-filter{
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #fafafa;
-  box-shadow: 0 1px 0 #e7e7e7;
 }
 
 // Ng-select customization
@@ -586,4 +479,9 @@ app-full-dialog {
       }
     }
   }
+}
+
+// Highlight.js
+.hljs-literal, .hljs-keyword {
+  color: #4500ff;
 }

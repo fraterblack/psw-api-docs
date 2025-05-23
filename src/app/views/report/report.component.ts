@@ -3,6 +3,7 @@ import { ApiService } from '../../core/services/api.service';
 
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import dayjs from 'dayjs';
 import { lastValueFrom, takeUntil, timeout } from 'rxjs';
 import { ApiServiceUrl } from '../../core/enums/api-service-url.enum';
 import { Auth } from '../../core/models/auth.model';
@@ -38,9 +39,10 @@ export class ReportComponent extends ViewComponent implements OnInit {
 
   isBusy = false;
 
-  settingsFormGroup = new UntypedFormGroup({
-    param1: new UntypedFormControl(),
-  });
+  parametersFormGroup = new UntypedFormGroup({});
+  activeParameters: any[];
+
+  selectOptions: { [propName: string]: any[] } = {};
 
   constructor(
     protected alertService: AlertService,
@@ -72,7 +74,24 @@ export class ReportComponent extends ViewComponent implements OnInit {
     this.reportData = null;
     this.reportProgress = null;
 
-    this.settingsFormGroup.reset();
+    this.activeParameters = [];
+    this.parametersFormGroup = new UntypedFormGroup({});
+
+    // Before show report parameters, create form control
+    for (const param of this.selectedEndpoint.parameters) {
+      this.parametersFormGroup.addControl(
+        param.name,
+        new UntypedFormControl(
+          param.setInitialValue ? param.setInitialValue() : null,
+        ),
+      );
+
+      if (param.onStart) {
+        param.onStart();
+      }
+    }
+
+    this.activeParameters = this.selectedEndpoint.parameters;
   }
 
   async onSend() {
@@ -88,29 +107,17 @@ export class ReportComponent extends ViewComponent implements OnInit {
     this.reportData = null;
     this.reportProgress = null;
 
-    // TODO
-    const rawParameters = this.settingsFormGroup.getRawValue();
+    // Parse parameters to generate body
+    const body: any = {};
+
+    for (const param of this.activeParameters) {
+      const paramValue = this.parametersFormGroup.get(param.name)?.value;
+      if (paramValue) {
+        body[param.name] = param.parser ? param.parser(paramValue) : paramValue;
+      }
+    }
 
     this.requestUrl = `${this.selectedEndpoint.service}${this.selectedEndpoint.path}`;
-
-    const body = {
-      "startAt": "2025-04-01",
-      "endAt": "2025-04-30",
-      "includeFiredEmployees": null,
-      "showSummary": true,
-      "showPartialAllowances": false,
-      "columns": ["normal", "t-falta"],
-      "filters": {
-        "collectors": [],
-        "employees": [],
-        "companies": [],
-        "departments": [],
-        "structures": [],
-        "roles": [],
-        "schedules": [],
-        "groups": []
-      }
-    };
 
     this.requestBody = JSON.stringify(
       body,
@@ -118,7 +125,7 @@ export class ReportComponent extends ViewComponent implements OnInit {
       2,
     );
 
-    const requestResult = await this.runRequest(
+    const requestResult = await this.runPostRequest(
       this.requestUrl,
       body,
     );
@@ -208,7 +215,7 @@ export class ReportComponent extends ViewComponent implements OnInit {
     }, 500);
   }
 
-  private async runRequest(endpointUrl: string, body: any, httpParams?: HttpParams): Promise<any> {
+  private async runPostRequest(endpointUrl: string, body: any, httpParams?: HttpParams): Promise<any> {
     this.isBusy = true;
     return lastValueFrom(
       this.apiService.post(
@@ -228,15 +235,88 @@ export class ReportComponent extends ViewComponent implements OnInit {
       .finally(() => this.isBusy = false);
   }
 
+  private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+    this.isBusy = true;
+    return lastValueFrom(
+      this.apiService.get(
+        endpointUrl,
+        httpParams,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authentication.token}`,
+          'ContentType': 'application/json',
+        }),
+      ),
+    )
+      .then((data) => {
+        this.emitSuccessMessage('Requisição concluída com sucesso');
+        return data;
+      })
+      .catch(error => this.handleError(error))
+      .finally(() => this.isBusy = false);
+  }
+
   private populateReports() {
-    this.endpoints = [
-      {
-        name: 'Apuração de Ponto',
-        service: ApiServiceUrl.TIMESHEET,
-        path: '/external/v1/report/timesheet',
-        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ea3d6a75-82a2-4df7-8a84-3486eae6f68e',
-      },
-    ];
+    try {
+      this.endpoints = [
+        {
+          name: 'Apuração de Ponto',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/timesheet',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#4c1caa91-4996-4134-97ed-885caa0faa60',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            {
+              name: 'showSummary',
+              type: 'BOOLEAN',
+              description: 'Indica se os totais dos cálculos devem ser exibidos no resultado',
+            },
+            {
+              name: 'showPartialAllowances',
+              type: 'BOOLEAN',
+              description: 'Indica se os abonos parciais devem ser exibidos no resultado',
+            },
+            {
+              name: 'columns',
+              type: 'MULTISELECT',
+              description: 'Lista dos nomes das colunas com os valores dos cálculos a serem exibidos',
+              onStart: () => {
+                if (sessionStorage.getItem('columnsOptions')) {
+                  this.selectOptions['columns'] = JSON.parse(sessionStorage.getItem('columnsOptions'));
+                }
+              },
+              onLoadOptions: async () => {
+                this.selectOptions['columns'] = await this.runGetRequest(`${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`)
+                  .then((data: any) => {
+                    return data.map((x: any) => {
+                      return {
+                        id: x.code,
+                        name: x.name,
+                      };
+                    });
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+
+                sessionStorage.setItem('columnsOptions', JSON.stringify(this.selectOptions['columns']));
+              },
+              docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee',
+            },
+          ],
+        },
+
+        {
+          name: 'Teste 2',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/timesheet',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ea3d6a75-82a2-4df7-8a84-3486eae6f68e',
+          parameters: [],
+        },
+      ];
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   protected handleBadRequestError(error: any): any | void {
@@ -252,5 +332,66 @@ export class ReportComponent extends ViewComponent implements OnInit {
   protected handleDatabaseError(error: any): any | void {
     this.emitErrorMessage(ErrorHelper.parseMessage(error), 10000);
     return { error: ErrorHelper.parseMessage(error) };
+  }
+
+  private generatePeriodParameters() {
+    return [
+      {
+        name: 'startAt',
+        type: 'START_DATE_PICKER',
+        description: 'Período inicial da consulta (obrigatório)',
+        placeholder: 'DD/MM/YYYY',
+        parser: (date: Date) => {
+          return dayjs(date).format('YYYY-MM-DD');
+        },
+        setInitialValue: () => {
+          if (sessionStorage.getItem('startAtParam')) {
+            return dayjs(sessionStorage.getItem('startAtParam')).toDate();
+          }
+
+          return null;
+        },
+        onChange: (date?: Date) => {
+          if (date) {
+            sessionStorage.setItem('startAtParam', dayjs(date).format('YYYY-MM-DD'));
+          } else {
+            sessionStorage.removeItem('startAtParam');
+          }
+        },
+      },
+      {
+        name: 'endAt',
+        type: 'END_DATE_PICKER',
+        description: 'Período final da consulta (obrigatório)',
+        placeholder: 'DD/MM/YYYY',
+        parser: (date: Date) => {
+          return dayjs(date).format('YYYY-MM-DD');
+        },
+        setInitialValue: () => {
+          if (sessionStorage.getItem('endAtParam')) {
+            return dayjs(sessionStorage.getItem('endAtParam')).toDate();
+          }
+
+          return null;
+        },
+        onChange: (date: Date) => {
+          if (date) {
+            sessionStorage.setItem('endAtParam', dayjs(date).format('YYYY-MM-DD'));
+          } else {
+            sessionStorage.removeItem('endAtParam');
+          }
+        },
+      },
+    ];
+  }
+
+  private generateIncludeFiredParameters() {
+    return [
+      {
+        name: 'includeFiredEmployees',
+        type: 'BOOLEAN',
+        description: 'Indica se empregados desligados devem ser incluídos na consulta',
+      },
+    ];
   }
 }

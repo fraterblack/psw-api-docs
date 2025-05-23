@@ -29,7 +29,7 @@
                 color="accent"
                 [href]="selectedEndpoint.docUrl"
                 target="_blank"
-                title="Ver a documentação"
+                matTooltip="Ver a documentação"
               >
                 <mat-icon>menu_book</mat-icon>
               </a>
@@ -53,7 +53,7 @@
                   type="text"
                   formControlName="param1"
                   placeholder="Informe o ID"
-                  class="w-100"
+                  class="w-100 input-field"
                 />
               </div>
               <div class="col pt-1">
@@ -85,7 +85,7 @@
                     [type]="param.type"
                     [formControlName]="'param' + (i + 1)"
                     [placeholder]="param.placeholder || ''"
-                    class="w-100"
+                    class="w-100 input-field"
                   />
                 </div>
                 <div class="col pt-1">

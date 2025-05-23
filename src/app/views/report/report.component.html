@@ -1,6 +1,21 @@
 <div class="container-fluid px-3 py-4">
   <div class="row">
     <div class="col">
+      <p>
+        <strong>IMPORTANTE:</strong> Para gerar relatórios no sistema, duas
+        etapas são necessárias. Primeiramente deve-se chamar o endpoint que
+        inicia o processamento do relatório. Em seguida é necessário fazer um
+        segunda requisição SSE para monitorar o andamento do processamento.
+        <a
+          href="https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#1d1d2743-7e27-4808-ad52-2c50bab01edd"
+          target="_blank"
+          >Consulte na documentação informações mais detalhadas</a
+        >.
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
       <mat-form-field color="accent">
         <mat-label>Endpoint</mat-label>
         <mat-select
@@ -29,7 +44,7 @@
                 color="accent"
                 [href]="selectedEndpoint.docUrl"
                 target="_blank"
-                title="Ver a documentação"
+                matTooltip="Ver a documentação"
               >
                 <mat-icon>menu_book</mat-icon>
               </a>
@@ -40,7 +55,147 @@
             <mat-card-subtitle>POST</mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
-        <mat-card-content> xxxxx </mat-card-content>
+        <mat-card-content>
+          <form
+            [formGroup]="parametersFormGroup"
+            *ngIf="activeParameters?.length"
+          >
+            <div class="row mt-2">
+              <div class="col">Parâmetros <i>(body)</i></div>
+            </div>
+            <div
+              class="row mt-2"
+              *ngFor="let param of activeParameters; let i = index"
+            >
+              <div class="row mt-2">
+                <div class="col col-xl-2 col-3">
+                  <strong>{{ param.name }}</strong>
+                </div>
+                <div class="col col-xl-3 col-4">
+                  <!-- START_DATE_PICKER -->
+                  <div *ngIf="param.type === 'START_DATE_PICKER'" class="row">
+                    <div class="col-auto pe-0">
+                      <input
+                        class="input-field"
+                        [formControlName]="param.name"
+                        [matDatepicker]="startDatePicker"
+                        simpleMask="d0/M0/0000"
+                        [showMaskTyped]="false"
+                        [placeholder]="param.placeholder || ''"
+                        (dateChange)="
+                          param.onChange ? param.onChange($event.value) : null
+                        "
+                      />
+                    </div>
+                    <div class="col ps-1 mt-n2">
+                      <mat-datepicker-toggle
+                        matIconSuffix
+                        [for]="startDatePicker"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker touchUi #startDatePicker></mat-datepicker>
+                    </div>
+                  </div>
+                  <!-- END_DATE_PICKER -->
+                  <div *ngIf="param.type === 'END_DATE_PICKER'" class="row">
+                    <div class="col-auto pe-0">
+                      <input
+                        class="input-field"
+                        [formControlName]="param.name"
+                        [matDatepicker]="endDatePicker"
+                        simpleMask="d0/M0/0000"
+                        [showMaskTyped]="false"
+                        [placeholder]="param.placeholder || ''"
+                        (dateChange)="
+                          param.onChange ? param.onChange($event.value) : null
+                        "
+                      />
+                    </div>
+                    <div class="col ps-1 mt-n2">
+                      <mat-datepicker-toggle
+                        matIconSuffix
+                        [for]="endDatePicker"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker touchUi #endDatePicker></mat-datepicker>
+                    </div>
+                  </div>
+
+                  <!-- BOOLEAN -->
+                  <input
+                    *ngIf="param.type === 'BOOLEAN'"
+                    type="checkbox"
+                    [formControlName]="param.name"
+                    class="checkbox-field"
+                    value="true"
+                  />
+
+                  <!-- TEXT -->
+                  <input
+                    *ngIf="param.type === 'TEXT'"
+                    type="text"
+                    [formControlName]="param.name"
+                    [placeholder]="param.placeholder || ''"
+                    class="w-100 input-field"
+                  />
+
+                  <!-- MULTISELECT -->
+                  <div *ngIf="param.type === 'MULTISELECT'">
+                    <div class="row">
+                      <div class="col">
+                        <mat-form-field appearance="outline">
+                          <mat-select
+                            [formControlName]="param.name"
+                            multiple
+                            [placeholder]="
+                              !selectOptions['columns']?.length
+                                ? 'Clique no botão para carregar opções'
+                                : ''
+                            "
+                          >
+                            @for (item of (selectOptions['columns'] || []);
+                            track item) {
+                            <mat-option [value]="item.id">{{
+                              item.name
+                            }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="col col-auto ps-0 pe-0">
+                        <button
+                          mat-icon-button
+                          [color]="
+                            selectOptions['columns']?.length
+                              ? 'basic'
+                              : 'accent'
+                          "
+                          matTooltip="Listar opções"
+                          (click)="param.onLoadOptions()"
+                        >
+                          <mat-icon>arrow_circle_down</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-auto pt-1">
+                  <small>{{ param.description }}</small>
+                </div>
+                <div class="col col-spacer"></div>
+                <div class="col-auto pt-1" *ngIf="param.docUrl">
+                  <a
+                    mat-icon-button
+                    color="accent"
+                    [href]="param.docUrl"
+                    target="_blank"
+                    matTooltip="Ver a documentação"
+                  >
+                    <mat-icon>menu_book</mat-icon>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
       </mat-card>
     </div>
   </div>
@@ -123,7 +278,7 @@
                 color="accent"
                 href="https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#1d1d2743-7e27-4808-ad52-2c50bab01edd"
                 target="_blank"
-                title="Ver a documentação"
+                matTooltip="Ver a documentação"
               >
                 <mat-icon>menu_book</mat-icon>
               </a>

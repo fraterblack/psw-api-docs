@@ -5,4 +5,5 @@ export interface ReportSettings {
   service: ApiServiceUrl;
   path: string;
   docUrl?: string;
+  parameters: any[];
 }

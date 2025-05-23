@@ -94,7 +94,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         this.requestUrl = findByIdEndpoint;
 
         this.requestResult = JSON.stringify(
-          await this.runRequest(
+          await this.runGetRequest(
             findByIdEndpoint,
           ) || {},
           null,
@@ -118,7 +118,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         this.requestUrl = `${this.selectedEndpoint.service}${this.selectedEndpoint.path}${httpParams.toString() ? '?' + httpParams.toString() : ''}`;
 
         this.requestResult = JSON.stringify(
-          await this.runRequest(
+          await this.runGetRequest(
             this.selectedEndpoint.service + this.selectedEndpoint.path,
             httpParams,
           ) || {},
@@ -130,7 +130,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
     }
   }
 
-  private async runRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+  private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
     this.isBusy = true;
     return lastValueFrom(
       this.apiService.get(
@@ -151,20 +151,6 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
   }
 
   private populateEndpoints() {
-    // Pagination parameters common in many endpoints
-    const paginationQueryParamsFragment = [
-      {
-        name: 'limit',
-        type: 'number',
-        description: 'Limite de resultados por página (Opcional)',
-      },
-      {
-        name: 'page',
-        type: 'number',
-        description: 'Página a ser retornada (Opcional)',
-      },
-    ];
-
     this.endpoints = [
       // Employees
       {
@@ -173,7 +159,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/employees',
         queryParams: [
-          ...paginationQueryParamsFragment,
+          ...this.generatePaginationParameters(),
           {
             name: 'pis',
             type: 'text',
@@ -206,7 +192,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/companies',
         queryParams: [
-          ...paginationQueryParamsFragment,
+          ...this.generatePaginationParameters(),
           {
             name: 'nationalIdentity',
             type: 'text',
@@ -228,7 +214,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Horários (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/schedules',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#64aabb3f-cc98-460d-a99d-4c41af888e8f',
       },
       {
@@ -244,7 +230,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Configurações de Cálculos (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/calculation-settings',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#957c315b-a309-41b3-927f-4bc7594cb65d',
       },
       {
@@ -260,7 +246,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Configurações de DSR (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/dsr-settings',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#b941792e-fdc4-47ac-b25f-ad821d402f18',
       },
       {
@@ -276,7 +262,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Configurações de Extras Mensais (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/overtime-monthly-settings',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#72b3553f-be2c-4959-8f68-73a3c16d6caa',
       },
       {
@@ -292,7 +278,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Faixas de Extras (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/overtime-ranges',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#be7bb228-9983-477e-8fbf-3f059c0f266f',
       },
       {
@@ -308,7 +294,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Departamentos (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/departments',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#e807ba1b-208e-43c8-865f-79e28a1b8975',
       },
       {
@@ -324,7 +310,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Funções (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/roles',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#80b00e97-a7e3-4d79-914d-11464f1639bf',
       },
       {
@@ -340,7 +326,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Estruturas (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/structures',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#84c0f7c3-7bb8-41ca-9f01-088996cfe249',
       },
       {
@@ -356,7 +342,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Grupos (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/groups',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#e1ecb000-f64e-4b68-9b67-2ab32b677302',
       },
       {
@@ -372,7 +358,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Justificativas (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/justifications',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#b80f96d0-ac29-40f0-9107-b4f09d21fd77',
       },
       {
@@ -388,7 +374,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Coletores (Listar)',
         service: ApiServiceUrl.COLLECTOR,
         path: '/external/v1/collectors',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#cbb5b642-6ef2-404b-81cc-3415f5d519aa',
       },
       {
@@ -404,7 +390,7 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
         name: 'Afastamentos (Listar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/times-off',
-        queryParams: paginationQueryParamsFragment,
+        queryParams: this.generatePaginationParameters(),
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#1dc4ba7e-2248-4e85-b1ff-a170d9cd3e4b',
       },
       {
@@ -438,5 +424,20 @@ export class DirectoryComponent extends ViewComponent implements OnInit {
   protected handleDatabaseError(error: any): any | void {
     this.emitErrorMessage(ErrorHelper.parseMessage(error), 10000);
     return { error: ErrorHelper.parseMessage(error) };
+  }
+
+  private generatePaginationParameters() {
+    return [
+      {
+        name: 'limit',
+        type: 'number',
+        description: 'Limite de resultados por página (Opcional)',
+      },
+      {
+        name: 'page',
+        type: 'number',
+        description: 'Página a ser retornada (Opcional)',
+      },
+    ];
   }
 }
