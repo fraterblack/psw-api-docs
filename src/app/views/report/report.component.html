@@ -41,7 +41,6 @@
               <a
                 *ngIf="selectedEndpoint.docUrl"
                 mat-icon-button
-                color="accent"
                 [href]="selectedEndpoint.docUrl"
                 target="_blank"
                 matTooltip="Ver a documentação"
@@ -71,7 +70,7 @@
                 <div class="col col-xl-2 col-3">
                   <strong>{{ param.name }}</strong>
                 </div>
-                <div class="col col-xl-3 col-4">
+                <div class="col col-xl-4 col-6">
                   <!-- START_DATE_PICKER -->
                   <div *ngIf="param.type === 'START_DATE_PICKER'" class="row">
                     <div class="col-auto pe-0">
@@ -82,9 +81,6 @@
                         simpleMask="d0/M0/0000"
                         [showMaskTyped]="false"
                         [placeholder]="param.placeholder || ''"
-                        (dateChange)="
-                          param.onChange ? param.onChange($event.value) : null
-                        "
                       />
                     </div>
                     <div class="col ps-1 mt-n2">
@@ -105,9 +101,6 @@
                         simpleMask="d0/M0/0000"
                         [showMaskTyped]="false"
                         [placeholder]="param.placeholder || ''"
-                        (dateChange)="
-                          param.onChange ? param.onChange($event.value) : null
-                        "
                       />
                     </div>
                     <div class="col ps-1 mt-n2">
@@ -148,7 +141,7 @@
                             [placeholder]="
                               !selectOptions['columns']?.length
                                 ? 'Clique no botão para carregar opções'
-                                : ''
+                                : param.placeholder || ''
                             "
                           >
                             @for (item of (selectOptions['columns'] || []);
@@ -163,11 +156,7 @@
                       <div class="col col-auto ps-0 pe-0">
                         <button
                           mat-icon-button
-                          [color]="
-                            selectOptions['columns']?.length
-                              ? 'basic'
-                              : 'accent'
-                          "
+                          color="primary"
                           matTooltip="Listar opções"
                           (click)="param.onLoadOptions()"
                         >
@@ -176,15 +165,39 @@
                       </div>
                     </div>
                   </div>
+
+                  <!-- EMPLOYEE_FILTER -->
+                  <div *ngIf="param.type === 'DIALOG'">
+                    <div class="row">
+                      <div class="col">
+                        <textarea
+                          [formControlName]="param.name"
+                          [placeholder]="param.placeholder || ''"
+                          class="w-100 textarea-field"
+                          rows="5"
+                          readonly
+                        >
+                        </textarea>
+                      </div>
+                      <div class="col col-auto ps-0 pe-0 mt-n2">
+                        <button
+                          mat-icon-button
+                          color="primary"
+                          matTooltip="Abrir opções"
+                          (click)="param.onOpen()"
+                        >
+                          <mat-icon>open_in_new</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-auto pt-1">
+                <div class="col pt-1">
                   <small>{{ param.description }}</small>
                 </div>
-                <div class="col col-spacer"></div>
                 <div class="col-auto pt-1" *ngIf="param.docUrl">
                   <a
                     mat-icon-button
-                    color="accent"
                     [href]="param.docUrl"
                     target="_blank"
                     matTooltip="Ver a documentação"
@@ -275,7 +288,6 @@
             <mat-card-subtitle>
               <a
                 mat-icon-button
-                color="accent"
                 href="https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#1d1d2743-7e27-4808-ad52-2c50bab01edd"
                 target="_blank"
                 matTooltip="Ver a documentação"

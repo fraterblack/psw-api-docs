@@ -9,7 +9,7 @@ import { Auth } from '../../core/models/auth.model';
 import { DialogService } from '../../core/services/dialog.service';
 import { AuthStore } from '../../core/stores/auth.store';
 import { Unsubscrable } from '../../shared/views/extendable/unsubscrable';
-import { AuthenticationViewComponent } from '../../views/shared/authentication-view/authentication-view.component';
+import { AuthenticationComponent } from '../../views/shared/authentication/authentication.component';
 import { ViewRoute } from './../../core/enums/view-route.enum';
 @Component({
   selector: 'app-dashboard',
@@ -127,8 +127,8 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
 
   onAuthenticate() {
     this.dialogService
-      .openFullDialog<AuthenticationViewComponent, DialogClosed<any>>(
-        AuthenticationViewComponent,
+      .openFullDialog<AuthenticationComponent, DialogClosed<any>>(
+        AuthenticationComponent,
         true,
         {},
       )

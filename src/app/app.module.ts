@@ -34,7 +34,7 @@ import { SharedModule } from './shared/shared.module';
 import { CUSTOM_ERRORS } from './translate/validation-error-messages';
 import { ErrorComponent } from './views/error/error.component';
 import { NotFoundComponent } from './views/error/not-found.component';
-import { AuthenticationViewComponent } from './views/shared/authentication-view/authentication-view.component';
+import { AuthenticationComponent } from './views/shared/authentication/authentication.component';
 
 const locale = ptLocale;
 
@@ -72,7 +72,7 @@ const maskConfig: Partial<IConfig> = {
   ],
   declarations: [
     AppComponent,
-    AuthenticationViewComponent,
+    AuthenticationComponent,
 
     NotFoundComponent,
     ErrorComponent,

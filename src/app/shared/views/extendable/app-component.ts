@@ -16,7 +16,7 @@ import { Unsubscrable } from './unsubscrable';
 /**
  * Abstract class to easily implements Form behaviors
  */
-export abstract class ViewComponent extends Unsubscrable {
+export abstract class AppComponent extends Unsubscrable {
   protected abstract alertService: AlertService;
   protected abstract dialogService: DialogService;
 

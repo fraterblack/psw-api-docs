@@ -8,13 +8,13 @@ import { ApiService } from '../../../core/services/api.service';
 import { BusyLoaderService } from '../../../core/services/busy-loader.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { AuthStore } from '../../../core/stores/auth.store';
-import { ViewComponent } from '../../../shared/views/extendable/view-component';
+import { AppComponent } from '../../../shared/views/extendable/app-component';
 
 @Component({
-  selector: 'app-authentication-view',
-  templateUrl: 'authentication-view.component.html'
+  selector: 'app-authentication',
+  templateUrl: 'authentication.component.html'
 })
-export class AuthenticationViewComponent extends ViewComponent {
+export class AuthenticationComponent extends AppComponent {
   key: string;
 
   constructor(
@@ -23,7 +23,7 @@ export class AuthenticationViewComponent extends ViewComponent {
     protected busyLoaderService: BusyLoaderService,
     private authStore: AuthStore,
     private apiService: ApiService,
-    public dialogRef: MatDialogRef<AuthenticationViewComponent>,
+    public dialogRef: MatDialogRef<AuthenticationComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     super();

@@ -97,7 +97,6 @@
             *ngFor="let item of mainMenu"
             [routerLink]="[item.route] | route"
             routerLinkActive="mdc-list-item--activated"
-            (isActiveChange)="this.onRouterLinkActive($event, item)"
             (click)="onClickMenu(drawer, item)"
           >
             <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>

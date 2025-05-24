@@ -10,14 +10,14 @@ import { AlertService } from '../../core/services/alert.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
-import { ViewComponent } from '../../shared/views/extendable/view-component';
+import { AppComponent } from '../../shared/views/extendable/app-component';
 import { EndpointParams } from './interfaces/endpoint-params.interface';
 
 @Component({
   selector: 'app-directory',
   templateUrl: 'directory.component.html'
 })
-export class DirectoryComponent extends ViewComponent implements OnInit {
+export class DirectoryComponent extends AppComponent implements OnInit {
   // List of endpoint parameters
   endpoints: EndpointParams[] = [];
 

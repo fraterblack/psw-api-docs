@@ -1,33 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
 
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import dayjs from 'dayjs';
-import { lastValueFrom, takeUntil, timeout } from 'rxjs';
+import { lastValueFrom, Subject, takeUntil, timeout } from 'rxjs';
 import { ApiServiceUrl } from '../../core/enums/api-service-url.enum';
+import { DialogClosed } from '../../core/interfaces/dialog-closed.interface';
 import { Auth } from '../../core/models/auth.model';
 import { AlertService } from '../../core/services/alert.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { SseService } from '../../core/services/sse.service';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
-import { ViewComponent } from '../../shared/views/extendable/view-component';
+import { AppComponent } from '../../shared/views/extendable/app-component';
+import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
 import { ReportSettings } from './interfaces/report-settings.interface';
 
 @Component({
   selector: 'app-report',
   templateUrl: 'report.component.html'
 })
-export class ReportComponent extends ViewComponent implements OnInit {
+export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
+  // Save authentication data
+  authentication: Auth;
+
   // List of endpoint parameters
   endpoints: ReportSettings[] = [];
 
   // Selected endpoint
   selectedEndpoint: ReportSettings;
-
-  // Save authentication data
-  authentication: Auth;
 
   requestUrl: string;
   requestBody: string;
@@ -43,6 +45,8 @@ export class ReportComponent extends ViewComponent implements OnInit {
   activeParameters: any[];
 
   selectOptions: { [propName: string]: any[] } = {};
+
+  protected ngUnsubscribeParameters = new Subject<void>();
 
   constructor(
     protected alertService: AlertService,
@@ -77,6 +81,9 @@ export class ReportComponent extends ViewComponent implements OnInit {
     this.activeParameters = [];
     this.parametersFormGroup = new UntypedFormGroup({});
 
+    this.ngUnsubscribeParameters.next();
+    this.ngUnsubscribeParameters.complete();
+
     // Before show report parameters, create form control
     for (const param of this.selectedEndpoint.parameters) {
       this.parametersFormGroup.addControl(
@@ -85,6 +92,15 @@ export class ReportComponent extends ViewComponent implements OnInit {
           param.setInitialValue ? param.setInitialValue() : null,
         ),
       );
+
+      // Watch for changes
+      if (param.onChange) {
+        this.parametersFormGroup.get(param.name).valueChanges
+          .pipe(takeUntil(this.ngUnsubscribeParameters))
+          .subscribe((v => {
+            param.onChange(v);
+          }));
+      }
 
       if (param.onStart) {
         param.onStart();
@@ -276,33 +292,8 @@ export class ReportComponent extends ViewComponent implements OnInit {
               type: 'BOOLEAN',
               description: 'Indica se os abonos parciais devem ser exibidos no resultado',
             },
-            {
-              name: 'columns',
-              type: 'MULTISELECT',
-              description: 'Lista dos nomes das colunas com os valores dos cálculos a serem exibidos',
-              onStart: () => {
-                if (sessionStorage.getItem('columnsOptions')) {
-                  this.selectOptions['columns'] = JSON.parse(sessionStorage.getItem('columnsOptions'));
-                }
-              },
-              onLoadOptions: async () => {
-                this.selectOptions['columns'] = await this.runGetRequest(`${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`)
-                  .then((data: any) => {
-                    return data.map((x: any) => {
-                      return {
-                        id: x.code,
-                        name: x.name,
-                      };
-                    });
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                  });
-
-                sessionStorage.setItem('columnsOptions', JSON.stringify(this.selectOptions['columns']));
-              },
-              docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee',
-            },
+            ...this.generateColumnsParameters(),
+            ...this.generateFiltersParameters(),
           ],
         },
 
@@ -317,6 +308,13 @@ export class ReportComponent extends ViewComponent implements OnInit {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribeParameters.next();
+    this.ngUnsubscribeParameters.complete();
+
+    super.ngOnDestroy();
   }
 
   protected handleBadRequestError(error: any): any | void {
@@ -391,6 +389,100 @@ export class ReportComponent extends ViewComponent implements OnInit {
         name: 'includeFiredEmployees',
         type: 'BOOLEAN',
         description: 'Indica se empregados desligados devem ser incluídos na consulta',
+      },
+    ];
+  }
+
+  private generateColumnsParameters() {
+    return [
+      {
+        name: 'columns',
+        type: 'MULTISELECT',
+        placeholder: 'Clique aqui para selecionar colunas',
+        description: 'Lista dos nomes das colunas com os valores dos cálculos a serem exibidos. Quando vazio, usa as colunas selecionadas na configuração',
+        onStart: () => {
+          const value = sessionStorage.getItem(`columnsOptions_${this.authentication?.licenseId}`);
+          if (value) {
+            this.selectOptions['columns'] = JSON.parse(value);
+          }
+        },
+        setInitialValue: () => {
+          if (sessionStorage.getItem(`columnsParams_${this.authentication?.licenseId}`)) {
+            return JSON.parse(sessionStorage.getItem(`columnsParams_${this.authentication?.licenseId}`));
+          }
+          return null;
+        },
+        onChange: (data: any) => {
+          if (data) {
+            sessionStorage.setItem(`columnsParams_${this.authentication?.licenseId}`, JSON.stringify(data));
+          } else {
+            sessionStorage.removeItem(`columnsParams_${this.authentication?.licenseId}`);
+          }
+        },
+        onLoadOptions: async () => {
+          this.selectOptions['columns'] = await this.runGetRequest(`${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`)
+            .then((data: any) => {
+              return data.map((x: any) => {
+                return {
+                  id: x.code,
+                  name: x.name,
+                };
+              });
+            })
+            .catch((err) => { });
+
+          sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.selectOptions['columns']));
+        },
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee',
+      },
+    ];
+  }
+
+  private generateFiltersParameters() {
+    return [
+      {
+        name: 'filters',
+        type: 'DIALOG',
+        description: 'Permite filtrar os empregados por diferentes parâmetros',
+        placeholder: 'Clique no botão ao lado para selecionar',
+        setInitialValue: () => {
+          return null;
+        },
+        parser: (data?: string) => {
+          return data ? JSON.parse(data) : null;
+        },
+        onOpen: () => {
+          const activeFilters = [
+            'employees',
+            'companies',
+            'departments',
+            'roles',
+            'groups',
+            'structures',
+            'schedules',
+          ];
+
+          const value = this.parametersFormGroup.get('filters')?.value;
+
+          this.dialogService
+            .openFullDialog<EmployeeFiltersComponent, DialogClosed<any>>(
+              EmployeeFiltersComponent,
+              true,
+              {
+                activeFilters,
+                value: value ? JSON.parse(value) : null,
+              }
+            )
+            .afterClosed()
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(result => {
+              if (result.changed) {
+                this.parametersFormGroup.get('filters').setValue(
+                  result.data ? JSON.stringify(result.data, null, 2) : null,
+                );
+              }
+            });
+        },
       },
     ];
   }

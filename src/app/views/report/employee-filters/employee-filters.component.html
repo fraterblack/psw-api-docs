@@ -1,0 +1,68 @@
+<app-full-dialog
+  title="Selecionar Filtros"
+  closeLabel="Fechar"
+  (closeDialog)="onClose()"
+>
+  <ng-container content>
+    <form class="row pt-1 pb-1" [formGroup]="filtersFormGroup">
+      <div class="col">
+        <div
+          class="row"
+          *ngFor="let filterName of activeFilters; let i = index"
+        >
+          <div class="col-xl-2 col-4 pt-2">
+            <strong>{{ filterName }}</strong>
+          </div>
+          <div class="col">
+            <mat-form-field appearance="outline">
+              <mat-select
+                [formControlName]="filterName"
+                multiple
+                [placeholder]="
+                  !selectOptions[filterName]?.length
+                    ? 'Clique no botão para carregar opções'
+                    : 'Selecione as opções'
+                "
+              >
+                @for (item of (selectOptions[filterName] || []); track item) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col col-auto ps-0 pe-0">
+            <button
+              mat-icon-button
+              color="primary"
+              matTooltip="Listar opções"
+              (click)="onLoadOptions(filterName)"
+            >
+              <mat-icon>arrow_circle_down</mat-icon>
+            </button>
+          </div>
+          <div class="col-auto">
+            <a
+              mat-icon-button
+              [href]="settings[filterName].docUrl"
+              target="_blank"
+              matTooltip="Ver a documentação"
+            >
+              <mat-icon>menu_book</mat-icon>
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+  <ng-container actions>
+    <button
+      class="me-2"
+      type="button"
+      mat-raised-button
+      color="accent"
+      (click)="onApply()"
+    >
+      Aplicar
+    </button>
+  </ng-container>
+</app-full-dialog>

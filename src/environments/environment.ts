@@ -4,7 +4,7 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  envName: 'dev',
+  environment: 'LOCAL',
   production: false,
   busy_loader_open_delay: 100,
   busy_loader_close_delay: 100,
