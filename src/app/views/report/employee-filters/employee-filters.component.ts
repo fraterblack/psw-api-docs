@@ -133,7 +133,7 @@ export class EmployeeFiltersComponent extends AppComponent {
     }
 
     this.selectOptions[filterName] = await this.runGetRequest(`${settings.service}${settings.path}`)
-      .then((data: any) => settings.mapper(data))
+      .then((data: any) => settings.mapper(data || []))
       .catch((err) => { });
 
     this.cacheService.set(`employeeFilter${filterName}_${this.authentication?.licenseId}`, this.selectOptions[filterName]);
@@ -161,6 +161,11 @@ export class EmployeeFiltersComponent extends AppComponent {
   }
 
   private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
     // this.isBusy = true;
     return lastValueFrom(
       this.apiService.get(

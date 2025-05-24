@@ -78,7 +78,7 @@ export class HourExtractConditionComponent extends AppComponent {
   async onLoadOptions() {
     this.columnOptions = await this.runGetRequest(`${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`)
       .then((data: any) => {
-        return data.map((x: any) => {
+        return (data || []).map((x: any) => {
           return {
             id: x.code,
             name: x.name,
@@ -87,7 +87,9 @@ export class HourExtractConditionComponent extends AppComponent {
       })
       .catch((err) => { });
 
-    sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.columnOptions));
+    if (this.columnOptions?.length) {
+      sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.columnOptions));
+    }
   }
 
   onApply() {
@@ -120,6 +122,11 @@ export class HourExtractConditionComponent extends AppComponent {
   }
 
   private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
     // this.isBusy = true;
     return lastValueFrom(
       this.apiService.get(

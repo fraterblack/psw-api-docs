@@ -235,6 +235,11 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
   }
 
   private async runPostRequest(endpointUrl: string, body: any, httpParams?: HttpParams): Promise<any> {
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
     this.isBusy = true;
     return lastValueFrom(
       this.apiService.post(
@@ -255,6 +260,11 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
   }
 
   private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
     this.isBusy = true;
     return lastValueFrom(
       this.apiService.get(
@@ -558,7 +568,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         onLoadOptions: async () => {
           this.selectOptions['columns'] = await this.runGetRequest(`${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`)
             .then((data: any) => {
-              return data.map((x: any) => {
+              return (data || []).map((x: any) => {
                 return {
                   id: x.code,
                   name: x.name,
@@ -567,7 +577,9 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
             })
             .catch((err) => { });
 
-          sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.selectOptions['columns']));
+          if (this.selectOptions['columns']?.length) {
+            sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.selectOptions['columns']));
+          }
         },
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee',
       },

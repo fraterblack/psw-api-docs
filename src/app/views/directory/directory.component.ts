@@ -131,6 +131,11 @@ export class DirectoryComponent extends AppComponent implements OnInit {
   }
 
   private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
     this.isBusy = true;
     return lastValueFrom(
       this.apiService.get(
