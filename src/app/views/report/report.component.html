@@ -131,6 +131,15 @@
                     class="w-100 input-field"
                   />
 
+                  <!-- INTEGER -->
+                  <input
+                    *ngIf="param.type === 'INTEGER'"
+                    type="number"
+                    [formControlName]="param.name"
+                    [placeholder]="param.placeholder || ''"
+                    class="w-100 input-field"
+                  />
+
                   <!-- MULTISELECT -->
                   <div *ngIf="param.type === 'MULTISELECT'">
                     <div class="row">

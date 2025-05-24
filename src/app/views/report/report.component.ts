@@ -15,6 +15,7 @@ import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
 import { AppComponent } from '../../shared/views/extendable/app-component';
 import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
+import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition-filters.component';
 import { ReportSettings } from './interfaces/report-settings.interface';
 
 @Component({
@@ -312,6 +313,69 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               name: 'showSummary',
               type: 'BOOLEAN',
               description: 'Indica se os totais dos cálculos devem ser exibidos no resultado',
+            },
+            ...this.generateColumnsParameters(),
+            {
+              name: 'condition',
+              type: 'DIALOG',
+              description: 'Permite filtrar os dias a serem considerados por uma condição específica',
+              placeholder: 'Clique no botão ao lado para configurar',
+              setInitialValue: () => {
+                return null;
+              },
+              parser: (data?: string) => {
+                return data ? JSON.parse(data) : null;
+              },
+              onOpen: () => {
+                const value = this.parametersFormGroup.get('condition')?.value;
+
+                this.dialogService
+                  .openFullDialog<HourExtractConditionComponent, DialogClosed<any>>(
+                    HourExtractConditionComponent,
+                    true,
+                    {
+                      value: value ? JSON.parse(value) : null,
+                    }
+                  )
+                  .afterClosed()
+                  .pipe(takeUntil(this.ngUnsubscribe))
+                  .subscribe(result => {
+                    if (result.changed) {
+                      this.parametersFormGroup.get('condition').setValue(
+                        result.data ? JSON.stringify(result.data, null, 2) : null,
+                      );
+                    }
+                  });
+              },
+            },
+            ...this.generateFiltersParameters(),
+          ],
+          reportProgressLabel: 'Empregados sendo analisados',
+        },
+
+        {
+          name: 'Ocorrências',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/occurrence',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#97fc3808-7699-4e9e-b2b3-c935e034b996',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            {
+              name: 'showSummary',
+              type: 'BOOLEAN',
+              description: 'Indica se os totais dos cálculos devem ser exibidos no resultado',
+            },
+            {
+              name: 'showShiftColumns',
+              type: 'BOOLEAN',
+              description: 'Indica se as colunas com marcações devem ser exibidas',
+            },
+            {
+              name: 'consecutiveConditionsDays',
+              type: 'INTEGER',
+              description: 'Define quantos dias consecutivos a ocorrência(s) deve acontecer para ser considerada. Se não for passado um valor, o padrão é 1',
+              placeholder: 1,
             },
             ...this.generateColumnsParameters(),
             ...this.generateFiltersParameters(),

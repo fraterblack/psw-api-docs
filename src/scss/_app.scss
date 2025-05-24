@@ -41,6 +41,25 @@ table {
   }
 }
 
+.select-field {
+  height: 30px;
+  padding-left: 8px;
+  padding-right: 8px;
+  outline: none;
+  border: 1px solid #9e9e9e;
+  border-radius: 4px;
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: #000;
+  }
+
+  &:focus {
+    border-color: #607d8b;
+    outline: 1px solid #607d8b;
+  }
+}
+
 .textarea-field {
   min-height: 120px;
   padding: 8px;

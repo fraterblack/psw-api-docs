@@ -1,0 +1,100 @@
+<app-full-dialog
+  title="Selecionar Filtros"
+  closeLabel="Fechar"
+  (closeDialog)="onClose()"
+>
+  <ng-container content>
+    <form class="row pt-1 pb-1" [formGroup]="conditionFormGroup">
+      <div class="col">
+        <div class="row">
+          <div class="col-xl-2 col-4 pt-2">
+            <strong>columns</strong>
+          </div>
+          <div class="col">
+            <mat-form-field appearance="outline">
+              <mat-select
+                formControlName="columns"
+                multiple
+                [placeholder]="
+                  !columnOptions?.length
+                    ? 'Clique no botão para carregar opções'
+                    : 'Selecione as opções'
+                "
+              >
+                @for (item of (columnOptions || []); track item) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col col-auto ps-0 pe-0">
+            <button
+              mat-icon-button
+              color="primary"
+              matTooltip="Listar opções"
+              (click)="onLoadOptions()"
+            >
+              <mat-icon>arrow_circle_down</mat-icon>
+            </button>
+          </div>
+          <div class="col-auto">
+            <a
+              mat-icon-button
+              href="https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee"
+              target="_blank"
+              matTooltip="Ver a documentação"
+            >
+              <mat-icon>menu_book</mat-icon>
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-2 col-4">
+            <strong>limit (type)</strong>
+          </div>
+          <div class="col">
+            <select class="select-field" formControlName="limitType">
+              <option value="---">Considerar todas as horas</option>
+              @for (item of (limitOptions || []); track item) {
+              <option
+                [value]="item.id"
+                [disabled]="!conditionFormGroup.get('columns')?.value?.length"
+              >
+                {{ item.name }}
+              </option>
+              }
+            </select>
+          </div>
+        </div>
+        <div
+          class="row"
+          *ngIf="conditionFormGroup.get('limitType')?.value !== '---'"
+        >
+          <div class="col-xl-2 col-4 mt-4">
+            <strong>limit (value)</strong>
+          </div>
+          <div class="col mt-4">
+            <input
+              class="input-field"
+              formControlName="limitValue"
+              simpleMask="00:00"
+              [showMaskTyped]="false"
+              placeholder="00:00"
+            />
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+  <ng-container actions>
+    <button
+      class="me-2"
+      type="button"
+      mat-raised-button
+      color="accent"
+      (click)="onApply()"
+    >
+      Aplicar
+    </button>
+  </ng-container>
+</app-full-dialog>
