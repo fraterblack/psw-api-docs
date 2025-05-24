@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run:
           name: Deploy over SSH
-          command: ssh -p 22 $SSH_USER@$SSH_HOST "cd /var/www/psw-ponto; ./deploy.sh";
+          command: ssh -p 22 $SSH_USER@$SSH_HOST "cd /var/www/psw-api-docs; ./deploy.sh";
 
 workflows:
   version: 2

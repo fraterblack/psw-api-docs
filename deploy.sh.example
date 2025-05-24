@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Master ref received.  Deploying master branch to production..."
-cd /var/www/psw-application
+cd /var/www/psw-api-docs
 git checkout master
 git pull
 
