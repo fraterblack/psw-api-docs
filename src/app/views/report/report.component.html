@@ -14,14 +14,15 @@
       </p>
     </div>
   </div>
-  <div class="row">
+  <div class="row mt-3">
     <div class="col">
-      <mat-form-field color="accent">
+      <mat-form-field color="accent" appearance="outline">
         <mat-label>Endpoint</mat-label>
         <mat-select
           [(ngModel)]="selectedEndpoint"
           (selectionChange)="onEndpointChangeChange()"
           [hideSingleSelectionIndicator]="true"
+          placeholder="Selecione um endpoint"
         >
           <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
             {{ endpoint.name }}
@@ -134,7 +135,10 @@
                   <div *ngIf="param.type === 'MULTISELECT'">
                     <div class="row">
                       <div class="col">
-                        <mat-form-field appearance="outline">
+                        <mat-form-field
+                          appearance="outline"
+                          appearance="outline"
+                        >
                           <mat-select
                             [formControlName]="param.name"
                             multiple
@@ -314,7 +318,10 @@
                 bufferValue="50"
               >
               </mat-progress-bar>
-              <p>{{ reportProgress.processed }}/{{ reportProgress.total }}</p>
+              <p>
+                {{ reportProgress.processed }}/{{ reportProgress.total }}
+                {{ reportProgress.label }}
+              </p>
             </div>
           </div>
 

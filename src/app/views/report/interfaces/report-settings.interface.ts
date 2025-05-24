@@ -6,4 +6,5 @@ export interface ReportSettings {
   path: string;
   docUrl?: string;
   parameters: any[];
+  reportProgressLabel?: string;
 }

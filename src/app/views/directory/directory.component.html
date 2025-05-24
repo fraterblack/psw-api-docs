@@ -1,12 +1,13 @@
 <div class="container-fluid px-3 py-4">
   <div class="row">
     <div class="col">
-      <mat-form-field color="accent">
+      <mat-form-field color="accent" appearance="outline">
         <mat-label>Endpoint</mat-label>
         <mat-select
           [(ngModel)]="selectedEndpoint"
           (selectionChange)="onEndpointChangeChange()"
           [hideSingleSelectionIndicator]="true"
+          placeholder="Selecione um endpoint"
         >
           <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
             {{ endpoint.name }}

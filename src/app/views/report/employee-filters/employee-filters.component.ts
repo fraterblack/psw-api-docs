@@ -38,7 +38,15 @@ export class EmployeeFiltersComponent extends AppComponent {
       service: ApiServiceUrl.TIMESHEET,
       path: '/external/v1/employees',
       docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ea3d6a75-82a2-4df7-8a84-3486eae6f68e',
-      mapper: (data: any) => data.results,
+      mapper: (data: any) => {
+        return data.results
+          .map(x => {
+            return {
+              id: x.id,
+              name: `${x.name}${x.registrationNumber ? ' - ' + x.registrationNumber : ''}`,
+            }
+          });
+      },
     },
     companies: {
       service: ApiServiceUrl.TIMESHEET,
@@ -74,6 +82,12 @@ export class EmployeeFiltersComponent extends AppComponent {
       service: ApiServiceUrl.TIMESHEET,
       path: '/external/v1/groups',
       docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#e1ecb000-f64e-4b68-9b67-2ab32b677302',
+      mapper: (data: any) => data.results,
+    },
+    collectors: {
+      service: ApiServiceUrl.COLLECTOR,
+      path: '/external/v1/collectors',
+      docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#cbb5b642-6ef2-404b-81cc-3415f5d519aa',
       mapper: (data: any) => data.results,
     },
   };

@@ -192,6 +192,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               total: data.total,
               processed: data.processed,
               progress: 100,
+              label: this.selectedEndpoint?.reportProgressLabel || '',
             };
 
             this.emitSuccessMessage('Relatório completado com sucesso');
@@ -202,6 +203,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               total: data.total,
               processed: data.processed,
               progress: (data.processed * 100) / data.total,
+              label: this.selectedEndpoint?.reportProgressLabel || '',
             };
           }
         },
@@ -215,7 +217,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
             2,
           );
 
-          this.emitErrorMessage('Houve um erro ao processar relatório');
+          this.emitErrorMessage('Houve um erro ao processar relatório. Verifique na resposta a descrição do erro');
         },
         // On finally
         () => {
@@ -295,14 +297,84 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
             ...this.generateColumnsParameters(),
             ...this.generateFiltersParameters(),
           ],
+          reportProgressLabel: 'Empregados sendo analisados',
         },
 
         {
-          name: 'Teste 2',
+          name: 'Extrato de Horas',
           service: ApiServiceUrl.TIMESHEET,
-          path: '/external/v1/report/timesheet',
-          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ea3d6a75-82a2-4df7-8a84-3486eae6f68e',
-          parameters: [],
+          path: '/external/v1/report/hour-extract',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#eef7cd44-c7e3-4deb-a7f8-5eae9490f497',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            {
+              name: 'showSummary',
+              type: 'BOOLEAN',
+              description: 'Indica se os totais dos cálculos devem ser exibidos no resultado',
+            },
+            ...this.generateColumnsParameters(),
+            ...this.generateFiltersParameters(),
+          ],
+          reportProgressLabel: 'Empregados sendo analisados',
+        },
+
+        {
+          name: 'Marcações Alocadas',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/allocated-records',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#0474bc88-39e1-4ac5-b4ee-ecca42cda3e1',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            {
+              name: 'showRecordCollector',
+              type: 'BOOLEAN',
+              description: 'Indica se o ID do coletor de origem da marcação deve ser exibido no resultado',
+            },
+            {
+              name: 'showRecordOrigin',
+              type: 'BOOLEAN',
+              description: 'Indica se a origem da marcação deve ser exibida no resultado',
+            },
+            ...this.generateFiltersParameters(
+              [
+                'collectors',
+                'employees',
+                'companies',
+                'departments',
+                'roles',
+                'groups',
+                'structures',
+                'schedules',
+              ],
+            ),
+          ],
+          reportProgressLabel: 'Linhas de dias sendo analisados',
+        },
+
+        {
+          name: 'Localização das Marcações',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/record-locations',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#720125e3-0783-416f-8035-d5a7b579f020',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            ...this.generateFiltersParameters(
+              [
+                'collectors',
+                'employees',
+                'companies',
+                'departments',
+                'roles',
+                'groups',
+                'structures',
+                'schedules',
+              ],
+            ),
+          ],
+          reportProgressLabel: 'Linhas de dias sendo analisados',
         },
       ];
     } catch (err) {
@@ -438,7 +510,17 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private generateFiltersParameters() {
+  private generateFiltersParameters(
+    activeFilters = [
+      'employees',
+      'companies',
+      'departments',
+      'roles',
+      'groups',
+      'structures',
+      'schedules',
+    ],
+  ) {
     return [
       {
         name: 'filters',
@@ -452,16 +534,6 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
           return data ? JSON.parse(data) : null;
         },
         onOpen: () => {
-          const activeFilters = [
-            'employees',
-            'companies',
-            'departments',
-            'roles',
-            'groups',
-            'structures',
-            'schedules',
-          ];
-
           const value = this.parametersFormGroup.get('filters')?.value;
 
           this.dialogService
