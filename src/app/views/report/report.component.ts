@@ -489,17 +489,17 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
           return dayjs(date).format('YYYY-MM-DD');
         },
         setInitialValue: () => {
-          if (sessionStorage.getItem('startAtParam')) {
-            return dayjs(sessionStorage.getItem('startAtParam')).toDate();
+          if (localStorage.getItem('startAtParam')) {
+            return dayjs(localStorage.getItem('startAtParam')).toDate();
           }
 
           return null;
         },
         onChange: (date?: Date) => {
           if (date) {
-            sessionStorage.setItem('startAtParam', dayjs(date).format('YYYY-MM-DD'));
+            localStorage.setItem('startAtParam', dayjs(date).format('YYYY-MM-DD'));
           } else {
-            sessionStorage.removeItem('startAtParam');
+            localStorage.removeItem('startAtParam');
           }
         },
       },
@@ -512,17 +512,17 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
           return dayjs(date).format('YYYY-MM-DD');
         },
         setInitialValue: () => {
-          if (sessionStorage.getItem('endAtParam')) {
-            return dayjs(sessionStorage.getItem('endAtParam')).toDate();
+          if (localStorage.getItem('endAtParam')) {
+            return dayjs(localStorage.getItem('endAtParam')).toDate();
           }
 
           return null;
         },
         onChange: (date: Date) => {
           if (date) {
-            sessionStorage.setItem('endAtParam', dayjs(date).format('YYYY-MM-DD'));
+            localStorage.setItem('endAtParam', dayjs(date).format('YYYY-MM-DD'));
           } else {
-            sessionStorage.removeItem('endAtParam');
+            localStorage.removeItem('endAtParam');
           }
         },
       },
@@ -547,22 +547,22 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         placeholder: 'Clique aqui para selecionar colunas',
         description: 'Lista dos nomes das colunas com os valores dos cálculos a serem exibidos. Quando vazio, usa as colunas selecionadas na configuração',
         onStart: () => {
-          const value = sessionStorage.getItem(`columnsOptions_${this.authentication?.licenseId}`);
+          const value = localStorage.getItem(`columnsOptions_${this.authentication?.licenseId}`);
           if (value) {
             this.selectOptions['columns'] = JSON.parse(value);
           }
         },
         setInitialValue: () => {
-          if (sessionStorage.getItem(`columnsParams_${this.authentication?.licenseId}`)) {
-            return JSON.parse(sessionStorage.getItem(`columnsParams_${this.authentication?.licenseId}`));
+          if (localStorage.getItem(`columnsParams_${this.authentication?.licenseId}`)) {
+            return JSON.parse(localStorage.getItem(`columnsParams_${this.authentication?.licenseId}`));
           }
           return null;
         },
         onChange: (data: any) => {
           if (data) {
-            sessionStorage.setItem(`columnsParams_${this.authentication?.licenseId}`, JSON.stringify(data));
+            localStorage.setItem(`columnsParams_${this.authentication?.licenseId}`, JSON.stringify(data));
           } else {
-            sessionStorage.removeItem(`columnsParams_${this.authentication?.licenseId}`);
+            localStorage.removeItem(`columnsParams_${this.authentication?.licenseId}`);
           }
         },
         onLoadOptions: async () => {
@@ -578,7 +578,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
             .catch((err) => { });
 
           if (this.selectOptions['columns']?.length) {
-            sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.selectOptions['columns']));
+            localStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.selectOptions['columns']));
           }
         },
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee',

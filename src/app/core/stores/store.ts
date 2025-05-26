@@ -24,7 +24,7 @@ export abstract class Store<T> extends Unsubscrable {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(src => this.value = src);
 
-    const previousStoredData = sessionStorage.getItem('auth_data');
+    const previousStoredData = localStorage.getItem('auth_data');
     if (previousStoredData) {
       this.changeSource(JSON.parse(previousStoredData));
     }
@@ -34,7 +34,7 @@ export abstract class Store<T> extends Unsubscrable {
     this.source.next(source);
 
     if (saveInSession) {
-      sessionStorage.setItem('auth_data', JSON.stringify(source));
+      localStorage.setItem('auth_data', JSON.stringify(source));
     }
   }
 
@@ -45,6 +45,6 @@ export abstract class Store<T> extends Unsubscrable {
   reset(): void {
     this.changeSource(null);
 
-    sessionStorage.removeItem('auth_data');
+    localStorage.removeItem('auth_data');
   }
 }

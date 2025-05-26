@@ -63,7 +63,7 @@ export class HourExtractConditionComponent extends AppComponent {
         this.authentication = auth;
       });
 
-    const value = sessionStorage.getItem(`columnsOptions_${this.authentication?.licenseId}`);
+    const value = localStorage.getItem(`columnsOptions_${this.authentication?.licenseId}`);
     if (value) {
       this.columnOptions = JSON.parse(value);
     }
@@ -88,7 +88,7 @@ export class HourExtractConditionComponent extends AppComponent {
       .catch((err) => { });
 
     if (this.columnOptions?.length) {
-      sessionStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.columnOptions));
+      localStorage.setItem(`columnsOptions_${this.authentication?.licenseId}`, JSON.stringify(this.columnOptions));
     }
   }
 
