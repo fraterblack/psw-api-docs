@@ -41,6 +41,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
   reportData: string;
 
   isBusy = false;
+  isLoadOptionsBusy = false;
 
   parametersFormGroup = new UntypedFormGroup({});
   activeParameters: any[];
@@ -145,6 +146,8 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
     const requestResult = await this.runPostRequest(
       this.requestUrl,
       body,
+      null,
+      (active: boolean) => this.isBusy = active,
     );
 
     this.requestResult = JSON.stringify(
@@ -234,13 +237,18 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
-  private async runPostRequest(endpointUrl: string, body: any, httpParams?: HttpParams): Promise<any> {
+  private async runPostRequest(
+    endpointUrl: string,
+    body: any,
+    httpParams?: HttpParams,
+    onLoadingCallback?: (active: boolean) => void,
+  ): Promise<any> {
     if (!this.authentication?.token) {
       this.emitWarningMessage('Autentique-se para continuar');
       return;
     }
 
-    this.isBusy = true;
+    (onLoadingCallback || new Function())(true);
     return lastValueFrom(
       this.apiService.post(
         endpointUrl,
@@ -256,16 +264,20 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         return data;
       })
       .catch(error => this.handleError(error))
-      .finally(() => this.isBusy = false);
+      .finally(() => (onLoadingCallback || new Function())(false));
   }
 
-  private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+  private async runGetRequest(
+    endpointUrl: string,
+    httpParams?: HttpParams,
+    onLoadingCallback?: (active: boolean) => void,
+  ): Promise<any> {
     if (!this.authentication?.token) {
       this.emitWarningMessage('Autentique-se para continuar');
       return;
     }
 
-    this.isBusy = true;
+    (onLoadingCallback || new Function())(true);
     return lastValueFrom(
       this.apiService.get(
         endpointUrl,
@@ -281,7 +293,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         return data;
       })
       .catch(error => this.handleError(error))
-      .finally(() => this.isBusy = false);
+      .finally(() => (onLoadingCallback || new Function())(false));
   }
 
   private populateReports() {
@@ -566,7 +578,11 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
           }
         },
         onLoadOptions: async () => {
-          this.selectOptions['columns'] = await this.runGetRequest(`${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`)
+          this.selectOptions['columns'] = await this.runGetRequest(
+            `${ApiServiceUrl.TIMESHEET}/external/v1/calculation-columns`,
+            null,
+            (active: boolean) => this.isLoadOptionsBusy = active,
+          )
             .then((data: any) => {
               return (data || []).map((x: any) => {
                 return {

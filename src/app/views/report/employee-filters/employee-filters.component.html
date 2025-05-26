@@ -33,11 +33,19 @@
           <div class="col col-auto ps-0 pe-0">
             <button
               mat-icon-button
-              color="primary"
+              [color]="
+                (selectOptions[filterName] || []).length ? 'accent' : 'primary'
+              "
               matTooltip="Listar opções"
               (click)="onLoadOptions(filterName)"
             >
-              <mat-icon>arrow_circle_down</mat-icon>
+              <mat-icon *ngIf="!isLoadOptionsBusy[filterName]"
+                >arrow_circle_down</mat-icon
+              >
+              <mat-spinner
+                *ngIf="isLoadOptionsBusy[filterName]"
+                [diameter]="25"
+              ></mat-spinner>
             </button>
           </div>
           <div class="col-auto">

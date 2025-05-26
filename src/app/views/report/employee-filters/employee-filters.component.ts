@@ -92,6 +92,8 @@ export class EmployeeFiltersComponent extends DialogComponent {
     },
   };
 
+  isLoadOptionsBusy: { [propName: string]: boolean } = {};
+
   constructor(
     protected alertService: AlertService,
     protected dialogService: DialogService,
@@ -132,7 +134,10 @@ export class EmployeeFiltersComponent extends DialogComponent {
       return;
     }
 
-    this.selectOptions[filterName] = await this.runGetRequest(`${settings.service}${settings.path}`)
+    this.selectOptions[filterName] = await this.runGetRequest(
+      `${settings.service}${settings.path}`,
+      null,
+      (active: boolean) => this.isLoadOptionsBusy[filterName] = active)
       .then((data: any) => settings.mapper(data || []))
       .catch((err) => { });
 
@@ -160,13 +165,17 @@ export class EmployeeFiltersComponent extends DialogComponent {
     this.closeDialog({ changed: false });
   }
 
-  private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+  private async runGetRequest(
+    endpointUrl: string,
+    httpParams?: HttpParams,
+    onLoadingCallback?: (active: boolean) => void,
+  ): Promise<any> {
     if (!this.authentication?.token) {
       this.emitWarningMessage('Autentique-se para continuar');
       return;
     }
 
-    // this.isBusy = true;
+    (onLoadingCallback || new Function())(true);
     return lastValueFrom(
       this.apiService.get(
         endpointUrl,
@@ -182,9 +191,7 @@ export class EmployeeFiltersComponent extends DialogComponent {
         return data;
       })
       .catch(error => this.handleError(error))
-      .finally(() => {
-        // this.isBusy = false
-      });
+      .finally(() => (onLoadingCallback || new Function())(false));
   }
 
   private closeDialog(result?: DialogClosed<any>) {

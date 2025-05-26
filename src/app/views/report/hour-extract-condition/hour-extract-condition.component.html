@@ -26,11 +26,15 @@
           <div class="col col-auto ps-0 pe-0">
             <button
               mat-icon-button
-              color="primary"
+              [color]="(columnOptions || []).length ? 'accent' : 'primary'"
               matTooltip="Listar opções"
               (click)="onLoadOptions()"
             >
-              <mat-icon>arrow_circle_down</mat-icon>
+              <mat-icon *ngIf="!isLoadOptionsBusy">arrow_circle_down</mat-icon>
+              <mat-spinner
+                *ngIf="isLoadOptionsBusy"
+                [diameter]="25"
+              ></mat-spinner>
             </button>
           </div>
           <div class="col-auto">

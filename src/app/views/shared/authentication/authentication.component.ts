@@ -8,13 +8,13 @@ import { ApiService } from '../../../core/services/api.service';
 import { BusyLoaderService } from '../../../core/services/busy-loader.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { AuthStore } from '../../../core/stores/auth.store';
-import { AppComponent } from '../../../shared/views/extendable/app-component';
+import { DialogComponent } from '../../../shared/views/extendable/dialog-component';
 
 @Component({
   selector: 'app-authentication',
   templateUrl: 'authentication.component.html'
 })
-export class AuthenticationComponent extends AppComponent {
+export class AuthenticationComponent extends DialogComponent {
   key: string;
 
   constructor(

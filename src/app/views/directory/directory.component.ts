@@ -96,6 +96,8 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         this.requestResult = JSON.stringify(
           await this.runGetRequest(
             findByIdEndpoint,
+            null,
+            (active: boolean) => this.isBusy = active,
           ) || {},
           null,
           2,
@@ -121,6 +123,7 @@ export class DirectoryComponent extends AppComponent implements OnInit {
           await this.runGetRequest(
             this.selectedEndpoint.service + this.selectedEndpoint.path,
             httpParams,
+            (active: boolean) => this.isBusy = active,
           ) || {},
           null,
           2,
@@ -130,13 +133,17 @@ export class DirectoryComponent extends AppComponent implements OnInit {
     }
   }
 
-  private async runGetRequest(endpointUrl: string, httpParams?: HttpParams): Promise<any> {
+  private async runGetRequest(
+    endpointUrl: string,
+    httpParams?: HttpParams,
+    onLoadingCallback?: (active: boolean) => void,
+  ): Promise<any> {
     if (!this.authentication?.token) {
       this.emitWarningMessage('Autentique-se para continuar');
       return;
     }
 
-    this.isBusy = true;
+    (onLoadingCallback || new Function())(true);
     return lastValueFrom(
       this.apiService.get(
         endpointUrl,
@@ -152,7 +159,7 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         return data;
       })
       .catch(error => this.handleError(error))
-      .finally(() => this.isBusy = false);
+      .finally(() => (onLoadingCallback || new Function())(false));
   }
 
   private populateEndpoints() {
