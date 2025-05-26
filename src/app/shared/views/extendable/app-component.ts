@@ -8,9 +8,7 @@ import {
   ValidationErrorDetail,
 } from '../../../core/interfaces/validation-error.interface';
 import { AlertService } from '../../../core/services/alert.service';
-import { DialogService } from '../../../core/services/dialog.service';
 import { ErrorHelper } from '../../../core/utils/error-helper';
-import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component';
 import { Unsubscrable } from './unsubscrable';
 
 /**
@@ -18,7 +16,6 @@ import { Unsubscrable } from './unsubscrable';
  */
 export abstract class AppComponent extends Unsubscrable {
   protected abstract alertService: AlertService;
-  protected abstract dialogService: DialogService;
 
   /**
    * Emits a info message
@@ -51,21 +48,6 @@ export abstract class AppComponent extends Unsubscrable {
    */
   emitErrorMessage(message: string, duration = 5000, id?: string) {
     this.alertService.show(message, AlertType.ERROR, duration, id);
-  }
-
-  /**
-   * Show confirmation message
-   *
-   * @param message Message to be showed
-   * @param duration Message autohide delay
-   */
-  showSuccessDialog(message: string, duration = 2000) {
-    this.dialogService.openDialog(SuccessDialogComponent, {
-      data: { message, duration },
-      maxWidth: '90dvw',
-      panelClass: 'success-dialog',
-      closeOnNavigation: false,
-    });
   }
 
   /**

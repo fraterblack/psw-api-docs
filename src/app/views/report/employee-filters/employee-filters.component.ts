@@ -12,7 +12,7 @@ import { ApiService } from '../../../core/services/api.service';
 import { CacheService } from '../../../core/services/cache.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { AuthStore } from '../../../core/stores/auth.store';
-import { AppComponent } from '../../../shared/views/extendable/app-component';
+import { DialogComponent } from '../../../shared/views/extendable/dialog-component';
 
 interface EmployeeFilterComponentData {
   activeFilters: string[],
@@ -24,7 +24,7 @@ interface EmployeeFilterComponentData {
   selector: 'app-employee-filters',
   templateUrl: 'employee-filters.component.html'
 })
-export class EmployeeFiltersComponent extends AppComponent {
+export class EmployeeFiltersComponent extends DialogComponent {
   // Save authentication data
   authentication: Auth;
 

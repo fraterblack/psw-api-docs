@@ -15,7 +15,7 @@ import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
 import { AppComponent } from '../../shared/views/extendable/app-component';
 import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
-import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition-filters.component';
+import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition.component';
 import { ReportSettings } from './interfaces/report-settings.interface';
 
 @Component({

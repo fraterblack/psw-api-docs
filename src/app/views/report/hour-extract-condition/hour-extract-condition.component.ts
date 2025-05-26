@@ -12,7 +12,7 @@ import { ApiService } from '../../../core/services/api.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { AuthStore } from '../../../core/stores/auth.store';
 import { ObjectHelper } from '../../../core/utils/object-helper';
-import { AppComponent } from '../../../shared/views/extendable/app-component';
+import { DialogComponent } from '../../../shared/views/extendable/dialog-component';
 
 interface HourExtractConditionComponentData {
   activeFilters: string[],
@@ -21,10 +21,10 @@ interface HourExtractConditionComponentData {
 }
 
 @Component({
-  selector: 'app-hour-extract-condition-filters',
-  templateUrl: 'hour-extract-condition-filters.component.html'
+  selector: 'app-hour-extract-condition',
+  templateUrl: 'hour-extract-condition.component.html'
 })
-export class HourExtractConditionComponent extends AppComponent {
+export class HourExtractConditionComponent extends DialogComponent {
   // Save authentication data
   authentication: Auth;
 

@@ -7,7 +7,9 @@ import { NgxMatTimepickerModule } from 'ngx-mat-timepicker';
 import { AngularMaterialModule } from '../../angular-material.module';
 import { SharedModule } from '../../shared/shared.module';
 import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
-import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition-filters.component';
+import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition.component';
+import { OccurrenceConditionBuilderComponent } from './occurrence-condition-builder/occurrence-condition-builder.component';
+import { OccurrenceConditionComponent } from './occurrence-condition/occurrence-condition.component';
 import { ReportRoutingModule } from './report-routing.module';
 import { ReportComponent } from './report.component';
 
@@ -27,6 +29,8 @@ import { ReportComponent } from './report.component';
     ReportComponent,
     EmployeeFiltersComponent,
     HourExtractConditionComponent,
+    OccurrenceConditionBuilderComponent,
+    OccurrenceConditionComponent,
   ],
   providers: [
   ]
