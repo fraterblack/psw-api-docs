@@ -1,0 +1,53 @@
+<app-full-dialog
+  title="Condições"
+  closeLabel="Fechar"
+  (closeDialog)="onClose()"
+>
+  <ng-container content [formGroup]="formGroup">
+    <ng-container
+      *ngFor="let g of formGroup.get('conditions')['controls']; let j = index"
+    >
+      <div class="row" [formGroup]="g">
+        <div class="col">
+          <app-occurrence-condition
+            [formGroup]="g"
+            [loadColumnsCallback]="onLoadColumns.bind(this)"
+            [loadJustificationsCallback]="onLoadJustifications.bind(this)"
+          ></app-occurrence-condition>
+        </div>
+        <div class="col-auto pt-2">
+          <button mat-icon-button color="warn" (click)="onRemoveCondition(j)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </div>
+      </div>
+      <hr class="mb-0 mt-4" />
+    </ng-container>
+    <div class="row mt-4 mb-4">
+      <div class="col col-spacer"></div>
+      <div class="col col-auto">
+        <button
+          type="button"
+          mat-raised-button
+          color="primary"
+          (click)="onAddCondition()"
+          [disabled]="formGroup.get('conditions')['controls'].length >= 3"
+        >
+          Adicionar condição
+        </button>
+      </div>
+      <div class="col col-spacer"></div>
+    </div>
+  </ng-container>
+  <ng-container actions>
+    <button
+      class="me-2"
+      type="button"
+      mat-raised-button
+      color="accent"
+      (click)="onApply()"
+    >
+      Aplicar
+    </button>
+  </ng-container>
+</app-full-dialog>

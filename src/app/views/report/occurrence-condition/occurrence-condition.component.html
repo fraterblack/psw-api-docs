@@ -1,0 +1,102 @@
+<form [formGroup]="formGroup()">
+  <div class="row">
+    <div class="col-xl-2 col-4 mt-4 pt-1">
+      <strong>matchType</strong>
+    </div>
+    <div class="col mt-4">
+      <select class="select-field" formControlName="matchType">
+        @for (item of (matchTypeOptions || []); track item) {
+        <option [value]="item.id">
+          {{ item.name }}
+        </option>
+        }
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xl-2 col-4 mt-4 pt-1">
+      <strong>type</strong>
+    </div>
+    <div class="col mt-4">
+      <select
+        class="select-field"
+        formControlName="type"
+        (change)="onTypeChange($event.target.value)"
+      >
+        @for (item of (typeOptions || []); track item) {
+        <option [value]="item.id">
+          {{ item.name }}
+        </option>
+        }
+      </select>
+    </div>
+  </div>
+  <div class="row" *ngIf="showIdentifiers">
+    <div class="col-xl-2 col-4 pt-2 mt-4">
+      <strong>identifiers</strong>
+    </div>
+    <div class="col mt-4">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-select
+          formControlName="identifiers"
+          multiple
+          [placeholder]="
+            formGroup().get('type').value === 'withValueInColumn'
+              ? 'Selecione ao menos uma coluna (obrigatório)'
+              : 'Caso nenhuma opçãp seja selecionada, todas serão consideradas'
+          "
+        >
+          @for (item of (identifiersOptions || []); track item) {
+          <mat-option [value]="item.id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col-auto mt-4">
+      <a
+        mat-icon-button
+        [href]="
+          formGroup().get('type').value === 'withValueInColumn'
+            ? 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#2f7675c2-08c7-4858-ba5d-5b02c2c6d3ee'
+            : 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#b80f96d0-ac29-40f0-9107-b4f09d21fd77'
+        "
+        target="_blank"
+        matTooltip="Ver a documentação"
+      >
+        <mat-icon>menu_book</mat-icon>
+      </a>
+    </div>
+  </div>
+  <div class="row" *ngIf="showLimit">
+    <div class="col-xl-2 col-4 mt-4 pt-1">
+      <strong>limit (type)</strong>
+    </div>
+    <div class="col mt-4">
+      <select class="select-field" formControlName="limitType">
+        <option value="---">Considerar todas as horas</option>
+        @for (item of (limitOptions || []); track item) {
+        <option [value]="item.id">
+          {{ item.name }}
+        </option>
+        }
+      </select>
+    </div>
+  </div>
+  <div
+    class="row"
+    *ngIf="showLimit && formGroup().get('limitType')?.value !== '---'"
+  >
+    <div class="col-xl-2 col-4 mt-4">
+      <strong>limit (value)</strong>
+    </div>
+    <div class="col mt-4">
+      <input
+        class="input-field"
+        formControlName="limitValue"
+        simpleMask="00:00"
+        [showMaskTyped]="false"
+        placeholder="00:00"
+      />
+    </div>
+  </div>
+</form>

@@ -7,7 +7,7 @@
             <strong>columns</strong>
           </div>
           <div class="col">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-select
                 formControlName="columns"
                 multiple
@@ -49,10 +49,10 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-xl-2 col-4">
+          <div class="col-xl-2 col-4 mt-4 pt-1">
             <strong>limit (type)</strong>
           </div>
-          <div class="col">
+          <div class="col mt-4">
             <select class="select-field" formControlName="limitType">
               <option value="---">Considerar todas as horas</option>
               @for (item of (limitOptions || []); track item) {

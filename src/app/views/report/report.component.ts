@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
+import { OccurrenceConditionBuilderComponent } from './occurrence-condition-builder/occurrence-condition-builder.component';
 
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
@@ -393,13 +394,46 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               type: 'BOOLEAN',
               description: 'Indica se as colunas com marcações devem ser exibidas',
             },
+            ...this.generateColumnsParameters(),
+            {
+              name: 'conditions',
+              type: 'DIALOG',
+              description: 'Permite filtrar os dias a serem considerados por condições específicas',
+              placeholder: 'Clique no botão ao lado para configurar',
+              setInitialValue: () => {
+                return null;
+              },
+              parser: (data?: string) => {
+                return data ? JSON.parse(data) : null;
+              },
+              onOpen: () => {
+                const value = this.parametersFormGroup.get('conditions')?.value;
+
+                this.dialogService
+                  .openFullDialog<OccurrenceConditionBuilderComponent, DialogClosed<any>>(
+                    OccurrenceConditionBuilderComponent,
+                    true,
+                    {
+                      value: value ? JSON.parse(value) : null,
+                    }
+                  )
+                  .afterClosed()
+                  .pipe(takeUntil(this.ngUnsubscribe))
+                  .subscribe(result => {
+                    if (result.changed) {
+                      this.parametersFormGroup.get('conditions').setValue(
+                        result.data ? JSON.stringify(result.data, null, 2) : null,
+                      );
+                    }
+                  });
+              },
+            },
             {
               name: 'consecutiveConditionsDays',
               type: 'INTEGER',
               description: 'Define quantos dias consecutivos a ocorrência(s) deve acontecer para ser considerada. Se não for passado um valor, o padrão é 1',
               placeholder: 1,
             },
-            ...this.generateColumnsParameters(),
             ...this.generateFiltersParameters(),
           ],
           reportProgressLabel: 'Empregados sendo analisados',

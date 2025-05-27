@@ -61,6 +61,7 @@ table {
 }
 
 .textarea-field {
+  display: block;
   min-height: 120px;
   padding: 8px;
   outline: none;
@@ -80,7 +81,7 @@ table {
 
 .checkbox-field {
   width: 18px;
-  height: 18px;
+  height: 30px;
   outline: none;
   border: 1px solid #9e9e9e;
 

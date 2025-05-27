@@ -64,170 +64,168 @@
               <div class="col">Parâmetros <i>(body)</i></div>
             </div>
             <div
-              class="row mt-2"
+              class="row"
               *ngFor="let param of activeParameters; let i = index"
             >
-              <div class="row mt-2">
-                <div class="col col-xl-2 col-3">
-                  <strong>{{ param.name }}</strong>
+              <div class="col col-xl-2 col-3 mt-4 pt-1">
+                <strong>{{ param.name }}</strong>
+              </div>
+              <div class="col col-xl-4 col-6 mt-4">
+                <!-- START_DATE_PICKER -->
+                <div *ngIf="param.type === 'START_DATE_PICKER'" class="row">
+                  <div class="col-auto pe-0">
+                    <input
+                      class="input-field"
+                      [formControlName]="param.name"
+                      [matDatepicker]="startDatePicker"
+                      simpleMask="d0/M0/0000"
+                      [showMaskTyped]="false"
+                      [placeholder]="param.placeholder || ''"
+                    />
+                  </div>
+                  <div class="col ps-1 mt-n2">
+                    <mat-datepicker-toggle
+                      matIconSuffix
+                      [for]="startDatePicker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker touchUi #startDatePicker></mat-datepicker>
+                  </div>
                 </div>
-                <div class="col col-xl-4 col-6">
-                  <!-- START_DATE_PICKER -->
-                  <div *ngIf="param.type === 'START_DATE_PICKER'" class="row">
-                    <div class="col-auto pe-0">
-                      <input
-                        class="input-field"
-                        [formControlName]="param.name"
-                        [matDatepicker]="startDatePicker"
-                        simpleMask="d0/M0/0000"
-                        [showMaskTyped]="false"
-                        [placeholder]="param.placeholder || ''"
-                      />
-                    </div>
-                    <div class="col ps-1 mt-n2">
-                      <mat-datepicker-toggle
-                        matIconSuffix
-                        [for]="startDatePicker"
-                      ></mat-datepicker-toggle>
-                      <mat-datepicker touchUi #startDatePicker></mat-datepicker>
-                    </div>
+                <!-- END_DATE_PICKER -->
+                <div *ngIf="param.type === 'END_DATE_PICKER'" class="row">
+                  <div class="col-auto pe-0">
+                    <input
+                      class="input-field"
+                      [formControlName]="param.name"
+                      [matDatepicker]="endDatePicker"
+                      simpleMask="d0/M0/0000"
+                      [showMaskTyped]="false"
+                      [placeholder]="param.placeholder || ''"
+                    />
                   </div>
-                  <!-- END_DATE_PICKER -->
-                  <div *ngIf="param.type === 'END_DATE_PICKER'" class="row">
-                    <div class="col-auto pe-0">
-                      <input
-                        class="input-field"
-                        [formControlName]="param.name"
-                        [matDatepicker]="endDatePicker"
-                        simpleMask="d0/M0/0000"
-                        [showMaskTyped]="false"
-                        [placeholder]="param.placeholder || ''"
-                      />
-                    </div>
-                    <div class="col ps-1 mt-n2">
-                      <mat-datepicker-toggle
-                        matIconSuffix
-                        [for]="endDatePicker"
-                      ></mat-datepicker-toggle>
-                      <mat-datepicker touchUi #endDatePicker></mat-datepicker>
-                    </div>
+                  <div class="col ps-1 mt-n2">
+                    <mat-datepicker-toggle
+                      matIconSuffix
+                      [for]="endDatePicker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker touchUi #endDatePicker></mat-datepicker>
                   </div>
+                </div>
 
-                  <!-- BOOLEAN -->
-                  <input
-                    *ngIf="param.type === 'BOOLEAN'"
-                    type="checkbox"
-                    [formControlName]="param.name"
-                    class="checkbox-field"
-                    value="true"
-                  />
+                <!-- BOOLEAN -->
+                <input
+                  *ngIf="param.type === 'BOOLEAN'"
+                  type="checkbox"
+                  [formControlName]="param.name"
+                  class="checkbox-field"
+                  value="true"
+                />
 
-                  <!-- TEXT -->
-                  <input
-                    *ngIf="param.type === 'TEXT'"
-                    type="text"
-                    [formControlName]="param.name"
-                    [placeholder]="param.placeholder || ''"
-                    class="w-100 input-field"
-                  />
+                <!-- TEXT -->
+                <input
+                  *ngIf="param.type === 'TEXT'"
+                  type="text"
+                  [formControlName]="param.name"
+                  [placeholder]="param.placeholder || ''"
+                  class="w-100 input-field"
+                />
 
-                  <!-- INTEGER -->
-                  <input
-                    *ngIf="param.type === 'INTEGER'"
-                    type="number"
-                    [formControlName]="param.name"
-                    [placeholder]="param.placeholder || ''"
-                    class="w-100 input-field"
-                  />
+                <!-- INTEGER -->
+                <input
+                  *ngIf="param.type === 'INTEGER'"
+                  type="number"
+                  [formControlName]="param.name"
+                  [placeholder]="param.placeholder || ''"
+                  class="w-100 input-field"
+                />
 
-                  <!-- MULTISELECT -->
-                  <div *ngIf="param.type === 'MULTISELECT'">
-                    <div class="row">
-                      <div class="col">
-                        <mat-form-field
-                          appearance="outline"
-                          appearance="outline"
-                        >
-                          <mat-select
-                            [formControlName]="param.name"
-                            multiple
-                            [placeholder]="
-                              !selectOptions['columns']?.length
-                                ? 'Clique no botão para carregar opções'
-                                : param.placeholder || ''
-                            "
-                          >
-                            @for (item of (selectOptions['columns'] || []);
-                            track item) {
-                            <mat-option [value]="item.id">{{
-                              item.name
-                            }}</mat-option>
-                            }
-                          </mat-select>
-                        </mat-form-field>
-                      </div>
-                      <div class="col col-auto ps-0 pe-0">
-                        <button
-                          mat-icon-button
-                          [color]="
-                            (selectOptions['columns'] || []).length
-                              ? 'accent'
-                              : 'primary'
-                          "
-                          matTooltip="Listar opções"
-                          (click)="param.onLoadOptions()"
-                        >
-                          <mat-icon *ngIf="!isLoadOptionsBusy"
-                            >arrow_circle_down</mat-icon
-                          >
-                          <mat-spinner
-                            *ngIf="isLoadOptionsBusy"
-                            [diameter]="25"
-                          ></mat-spinner>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- EMPLOYEE_FILTER -->
-                  <div *ngIf="param.type === 'DIALOG'">
-                    <div class="row">
-                      <div class="col">
-                        <textarea
+                <!-- MULTISELECT -->
+                <div *ngIf="param.type === 'MULTISELECT'">
+                  <div class="row">
+                    <div class="col">
+                      <mat-form-field
+                        appearance="outline"
+                        subscriptSizing="dynamic"
+                      >
+                        <mat-select
                           [formControlName]="param.name"
-                          [placeholder]="param.placeholder || ''"
-                          class="w-100 textarea-field"
-                          rows="5"
-                          readonly
+                          multiple
+                          [placeholder]="
+                            !selectOptions['columns']?.length
+                              ? 'Clique no botão para carregar opções'
+                              : param.placeholder || ''
+                          "
                         >
-                        </textarea>
-                      </div>
-                      <div class="col col-auto ps-0 pe-0 mt-n2">
-                        <button
-                          mat-icon-button
-                          color="primary"
-                          matTooltip="Abrir opções"
-                          (click)="param.onOpen()"
+                          @for (item of (selectOptions['columns'] || []); track
+                          item) {
+                          <mat-option [value]="item.id">{{
+                            item.name
+                          }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col col-auto ps-0 pe-0">
+                      <button
+                        mat-icon-button
+                        [color]="
+                          (selectOptions['columns'] || []).length
+                            ? 'accent'
+                            : 'primary'
+                        "
+                        matTooltip="Listar opções"
+                        (click)="param.onLoadOptions()"
+                      >
+                        <mat-icon *ngIf="!isLoadOptionsBusy"
+                          >arrow_circle_down</mat-icon
                         >
-                          <mat-icon>open_in_new</mat-icon>
-                        </button>
-                      </div>
+                        <mat-spinner
+                          *ngIf="isLoadOptionsBusy"
+                          [diameter]="25"
+                        ></mat-spinner>
+                      </button>
                     </div>
                   </div>
                 </div>
-                <div class="col pt-1">
-                  <small>{{ param.description }}</small>
+
+                <!-- EMPLOYEE_FILTER -->
+                <div *ngIf="param.type === 'DIALOG'">
+                  <div class="row">
+                    <div class="col">
+                      <textarea
+                        [formControlName]="param.name"
+                        [placeholder]="param.placeholder || ''"
+                        class="w-100 textarea-field"
+                        rows="5"
+                        readonly
+                      >
+                      </textarea>
+                    </div>
+                    <div class="col col-auto ps-0 pe-0 mt-n2">
+                      <button
+                        mat-icon-button
+                        color="primary"
+                        matTooltip="Abrir opções"
+                        (click)="param.onOpen()"
+                      >
+                        <mat-icon>open_in_new</mat-icon>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-auto pt-1" *ngIf="param.docUrl">
-                  <a
-                    mat-icon-button
-                    [href]="param.docUrl"
-                    target="_blank"
-                    matTooltip="Ver a documentação"
-                  >
-                    <mat-icon>menu_book</mat-icon>
-                  </a>
-                </div>
+              </div>
+              <div class="col pt-1 mt-4">
+                <small>{{ param.description }}</small>
+              </div>
+              <div class="col-auto pt-1 mt-4" *ngIf="param.docUrl">
+                <a
+                  mat-icon-button
+                  [href]="param.docUrl"
+                  target="_blank"
+                  matTooltip="Ver a documentação"
+                >
+                  <mat-icon>menu_book</mat-icon>
+                </a>
               </div>
             </div>
           </form>

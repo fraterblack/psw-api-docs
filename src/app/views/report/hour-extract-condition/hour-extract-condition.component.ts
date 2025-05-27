@@ -112,7 +112,7 @@ export class HourExtractConditionComponent extends DialogComponent {
       data = null;
     }
 
-    if (data?.limit && (data.limit?.type === '---' || !data.limit?.value)) {
+    if (data?.limit && (data.limit?.type === '---' || !data.limit?.type || !data.limit?.value)) {
       delete data.limit;
     }
 
