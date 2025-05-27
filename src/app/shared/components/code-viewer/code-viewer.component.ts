@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import hljs from 'highlight.js';
+import { StringHelper } from '../../../core/utils/string-helper';
 
 @Component({
   selector: 'app-code-viewer',
@@ -13,5 +14,9 @@ export class CodeViewerComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     this.parsedCode = hljs.highlight(this.code, { language: this.language }).value;
+  }
+
+  onCopy() {
+    StringHelper.copyTextToClipboard(this.code);
   }
 }
