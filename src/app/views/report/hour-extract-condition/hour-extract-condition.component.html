@@ -49,10 +49,10 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-xl-2 col-4 mt-4 pt-1">
+          <div class="col-xl-2 col-4 mt-3 pt-3 pb-2 featured-column">
             <strong>limit (type)</strong>
           </div>
-          <div class="col mt-4">
+          <div class="col mt-3 pt-2 pb-2 featured-column">
             <select class="select-field" formControlName="limitType">
               <option value="---">Considerar todas as horas</option>
               @for (item of (limitOptions || []); track item) {
@@ -70,10 +70,10 @@
           class="row"
           *ngIf="conditionFormGroup.get('limitType')?.value !== '---'"
         >
-          <div class="col-xl-2 col-4 mt-4">
+          <div class="col-xl-2 col-4 pt-3 pb-2 featured-column">
             <strong>limit (value)</strong>
           </div>
-          <div class="col mt-4">
+          <div class="col pt-3 pb-2 featured-column">
             <input
               class="input-field"
               formControlName="limitValue"

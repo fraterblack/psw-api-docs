@@ -15,6 +15,7 @@ import { SseService } from '../../core/services/sse.service';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
 import { AppComponent } from '../../shared/views/extendable/app-component';
+import { BankedHourExtractConditionComponent } from './banked-hour-extract-condition/banked-hour-extract-condition.component';
 import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
 import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition.component';
 import { ReportSettings } from './interfaces/report-settings.interface';
@@ -227,6 +228,13 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         // On finally
         () => {
           console.log(`Monitoring complete (${reportId})`);
+
+          setTimeout(() => {
+            const element = document.getElementById('reportProgress');
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+            }
+          }, 500);
         }
       );
 
@@ -433,6 +441,57 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               type: 'INTEGER',
               description: 'Define quantos dias consecutivos a ocorrência(s) deve acontecer para ser considerada. Se não for passado um valor, o padrão é 1',
               placeholder: 1,
+            },
+            ...this.generateFiltersParameters(),
+          ],
+          reportProgressLabel: 'Empregados sendo analisados',
+        },
+
+        {
+          name: 'Extrato de Banco de Horas',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/banked-hour-extract',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#8c33a990-621d-40e1-b914-d492403ff03c',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            {
+              name: 'showSummary',
+              type: 'BOOLEAN',
+              description: 'Indica se os totais dos cálculos devem ser exibidos no resultado',
+            },
+            {
+              name: 'condition',
+              type: 'DIALOG',
+              description: 'Permite filtrar os saldos de BH por uma condição específica',
+              placeholder: 'Clique no botão ao lado para configurar',
+              setInitialValue: () => {
+                return null;
+              },
+              parser: (data?: string) => {
+                return data ? JSON.parse(data) : null;
+              },
+              onOpen: () => {
+                const value = this.parametersFormGroup.get('condition')?.value;
+
+                this.dialogService
+                  .openFullDialog<BankedHourExtractConditionComponent, DialogClosed<any>>(
+                    BankedHourExtractConditionComponent,
+                    true,
+                    {
+                      value: value ? JSON.parse(value) : null,
+                    }
+                  )
+                  .afterClosed()
+                  .pipe(takeUntil(this.ngUnsubscribe))
+                  .subscribe(result => {
+                    if (result.changed) {
+                      this.parametersFormGroup.get('condition').setValue(
+                        result.data ? JSON.stringify(result.data, null, 2) : null,
+                      );
+                    }
+                  });
+              },
             },
             ...this.generateFiltersParameters(),
           ],

@@ -15,7 +15,6 @@ import { ObjectHelper } from '../../../core/utils/object-helper';
 import { DialogComponent } from '../../../shared/views/extendable/dialog-component';
 
 interface HourExtractConditionComponentData {
-  activeFilters: string[],
   value?: any;
   changes?: DialogClosed<any>;
 }
