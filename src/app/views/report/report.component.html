@@ -56,6 +56,9 @@
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
+          <div class="row" *ngIf="selectedEndpoint.description">
+            <div class="col mt-2 mb-3">{{ selectedEndpoint.description }}</div>
+          </div>
           <form
             [formGroup]="parametersFormGroup"
             *ngIf="activeParameters?.length"
@@ -151,12 +154,12 @@
                           [formControlName]="param.name"
                           multiple
                           [placeholder]="
-                            !selectOptions['columns']?.length
+                            !selectOptions[param.name]?.length
                               ? 'Clique no botão para carregar opções'
                               : param.placeholder || ''
                           "
                         >
-                          @for (item of (selectOptions['columns'] || []); track
+                          @for (item of (selectOptions[param.name] || []); track
                           item) {
                           <mat-option [value]="item.id">{{
                             item.name
@@ -169,7 +172,7 @@
                       <button
                         mat-icon-button
                         [color]="
-                          (selectOptions['columns'] || []).length
+                          (selectOptions[param.name] || []).length
                             ? 'accent'
                             : 'primary'
                         "
@@ -185,6 +188,31 @@
                         ></mat-spinner>
                       </button>
                     </div>
+                  </div>
+                </div>
+
+                <!-- SELECT -->
+                <div *ngIf="param.type === 'SELECT'">
+                  <div class="row">
+                    <div class="col">
+                      <select
+                        class="w-100 select-field"
+                        [formControlName]="param.name"
+                        (change)="
+                          param.onChange
+                            ? param.onChange($event.target.value)
+                            : null
+                        "
+                      >
+                        @for (item of (selectOptions[param.name] || []); track
+                        item) {
+                        <option [value]="item.id">
+                          {{ item.name }}
+                        </option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col"></div>
                   </div>
                 </div>
 

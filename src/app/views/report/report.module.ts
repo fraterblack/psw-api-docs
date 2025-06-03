@@ -6,6 +6,7 @@ import { NgBootstrapFormValidationModule } from 'ng-bootstrap-form-validation';
 import { NgxMatTimepickerModule } from 'ngx-mat-timepicker';
 import { AngularMaterialModule } from '../../angular-material.module';
 import { SharedModule } from '../../shared/shared.module';
+import { AbsenteeismConditionComponent } from './absenteeism-condition/absenteeism-condition.component';
 import { BankedHourExtractConditionComponent } from './banked-hour-extract-condition/banked-hour-extract-condition.component';
 import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
 import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition.component';
@@ -33,6 +34,7 @@ import { ReportComponent } from './report.component';
     OccurrenceConditionBuilderComponent,
     OccurrenceConditionComponent,
     BankedHourExtractConditionComponent,
+    AbsenteeismConditionComponent,
   ],
   providers: [
   ]

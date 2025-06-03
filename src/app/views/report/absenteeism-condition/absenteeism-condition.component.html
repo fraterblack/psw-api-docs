@@ -1,0 +1,115 @@
+<app-full-dialog title="Condição" closeLabel="Fechar" (closeDialog)="onClose()">
+  <ng-container content>
+    <form class="row pt-1 pb-1" [formGroup]="conditionFormGroup">
+      <div class="col">
+        <div class="row">
+          <div class="col-xl-3 col-4">
+            <strong>ignoreBHAbsence</strong>
+          </div>
+          <div class="col">
+            <input
+              type="checkbox"
+              formControlName="ignoreBHAbsence"
+              class="checkbox-field"
+              value="true"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-4 mt-4">
+            <strong>ignoreNonJustifiedAbsence</strong>
+          </div>
+          <div class="col mt-4">
+            <input
+              type="checkbox"
+              formControlName="ignoreNonJustifiedAbsence"
+              class="checkbox-field"
+              value="true"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-4 mt-4">
+            <strong>type</strong>
+          </div>
+          <div class="col mt-4">
+            <select class="w-100 select-field" formControlName="type">
+              <option value="---">Considerar todas as justificativas</option>
+              @for (item of (typeOptions || []); track item) {
+              <option [value]="item.id">
+                {{ item.name }}
+              </option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div
+          class="row"
+          *ngIf="
+            conditionFormGroup.get('type')?.value ===
+            'considerSpecificJustification'
+          "
+        >
+          <div class="col-xl-3 col-4 pt-2 mt-4">
+            <strong>identifiers</strong>
+          </div>
+          <div class="col mt-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-select
+                formControlName="identifiers"
+                multiple
+                [placeholder]="
+                  !identifierOptions?.length
+                    ? 'Clique no botão para carregar opções'
+                    : 'Selecione as opções'
+                "
+              >
+                @for (item of (identifierOptions || []); track item) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col col-auto ps-0 pe-0 mt-4">
+            <button
+              mat-icon-button
+              [color]="(identifierOptions || []).length ? 'accent' : 'primary'"
+              matTooltip="Listar opções"
+              (click)="onLoadOptions()"
+            >
+              <mat-icon *ngIf="!isLoadOptionsBusy">arrow_circle_down</mat-icon>
+              <mat-spinner
+                *ngIf="isLoadOptionsBusy"
+                [diameter]="25"
+              ></mat-spinner>
+            </button>
+          </div>
+          <div class="col-auto mt-4">
+            <a
+              mat-icon-button
+              href="https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#b80f96d0-ac29-40f0-9107-b4f09d21fd77"
+              target="_blank"
+              matTooltip="Ver a documentação"
+            >
+              <mat-icon>menu_book</mat-icon>
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+  <ng-container actions>
+    <button
+      class="me-2"
+      type="button"
+      mat-raised-button
+      color="accent"
+      (click)="onApply()"
+    >
+      Aplicar
+    </button>
+  </ng-container>
+</app-full-dialog>

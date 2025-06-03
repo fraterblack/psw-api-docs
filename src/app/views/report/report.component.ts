@@ -14,7 +14,9 @@ import { DialogService } from '../../core/services/dialog.service';
 import { SseService } from '../../core/services/sse.service';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
+import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { AppComponent } from '../../shared/views/extendable/app-component';
+import { AbsenteeismConditionComponent } from './absenteeism-condition/absenteeism-condition.component';
 import { BankedHourExtractConditionComponent } from './banked-hour-extract-condition/banked-hour-extract-condition.component';
 import { EmployeeFiltersComponent } from './employee-filters/employee-filters.component';
 import { HourExtractConditionComponent } from './hour-extract-condition/hour-extract-condition.component';
@@ -133,7 +135,17 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
     for (const param of this.activeParameters) {
       const paramValue = this.parametersFormGroup.get(param.name)?.value;
       if (paramValue) {
-        body[param.name] = param.parser ? param.parser(paramValue) : paramValue;
+        let parsedValue = param.parser ? param.parser(paramValue) : paramValue;
+
+        if (param.beforeSend) {
+          try {
+            parsedValue = await param.beforeSend(parsedValue);
+          } catch (err) {
+            return;
+          }
+        }
+
+        body[param.name] = parsedValue;
       }
     }
 
@@ -449,6 +461,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
 
         {
           name: 'Extrato de Banco de Horas',
+          description: 'Este relatório depende da funcionalidade Banco de Horas habilitada no sistema',
           service: ApiServiceUrl.TIMESHEET,
           path: '/external/v1/report/banked-hour-extract',
           docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#8c33a990-621d-40e1-b914-d492403ff03c',
@@ -496,6 +509,160 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
             ...this.generateFiltersParameters(),
           ],
           reportProgressLabel: 'Empregados sendo analisados',
+        },
+
+        {
+          name: 'Absenteísmo',
+          description: 'Este relatório depende da funcionalidade Absenteísmo habilitada no sistema',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/absenteeism',
+          docUrl: '#todo',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            {
+              name: 'showSummary',
+              type: 'BOOLEAN',
+              description: 'Indica se os totais dos cálculos devem ser exibidos no resultado',
+            },
+            {
+              name: 'showDetailedJustifications',
+              type: 'BOOLEAN',
+              description: 'Mostra os valores de ausência para cada justificativa',
+            },
+            {
+              name: 'showOnlyRegistriesWithAbsence',
+              type: 'BOOLEAN',
+              description: 'Mostra somente empregados com alguma ausência',
+            },
+            {
+              name: 'percentagePlaces',
+              type: 'SELECT',
+              description: 'Casas Decimais a serem usadas na % Ausência',
+              setInitialValue: () => {
+                if (localStorage.getItem(`absenteeismPercentagePlaces_${this.authentication?.licenseId}`)) {
+                  return JSON.parse(localStorage.getItem(`absenteeismPercentagePlaces_${this.authentication?.licenseId}`));
+                }
+
+                return 2;
+              },
+              parser: (data?: string) => {
+                return parseInt(data || '2', 10);
+              },
+              onStart: () => {
+                this.selectOptions['percentagePlaces'] = [
+                  {
+                    id: 0,
+                    name: 0,
+                  },
+                  {
+                    id: 1,
+                    name: 1,
+                  },
+                  {
+                    id: 2,
+                    name: 2,
+                  },
+                  {
+                    id: 3,
+                    name: 3,
+                  },
+                  {
+                    id: 4,
+                    name: 4,
+                  },
+                  {
+                    id: 5,
+                    name: 5,
+                  },
+                ];
+              },
+              onChange: (data?: number) => {
+                localStorage.setItem(`absenteeismPercentagePlaces_${this.authentication?.licenseId}`, JSON.stringify(data));
+              },
+            },
+            {
+              name: 'condition',
+              type: 'DIALOG',
+              description: 'Permite filtrar ausências por uma condição específica',
+              placeholder: 'Clique no botão ao lado para configurar',
+              setInitialValue: () => {
+                return null;
+              },
+              parser: (data?: string) => {
+                return data ? JSON.parse(data) : null;
+              },
+              onOpen: () => {
+                const value = this.parametersFormGroup.get('condition')?.value;
+
+                this.dialogService
+                  .openFullDialog<AbsenteeismConditionComponent, DialogClosed<any>>(
+                    AbsenteeismConditionComponent,
+                    true,
+                    {
+                      value: value ? JSON.parse(value) : null,
+                    }
+                  )
+                  .afterClosed()
+                  .pipe(takeUntil(this.ngUnsubscribe))
+                  .subscribe(result => {
+                    if (result.changed) {
+                      this.parametersFormGroup.get('condition').setValue(
+                        result.data ? JSON.stringify(result.data, null, 2) : null,
+                      );
+                    }
+                  });
+              },
+              beforeSend: async (value?: any) => {
+                const condition = JSON.parse(this.parametersFormGroup.get('condition')?.value || '{}');
+                const showDetailedJustifications = this.parametersFormGroup.get('showDetailedJustifications')?.value;
+
+                if (showDetailedJustifications) {
+                  if (condition?.type === 'disconsiderWithJustification') {
+                    const result = await lastValueFrom(this.dialogService.openDialog(ConfirmationDialogComponent, {
+                      data: {
+                        message: 'Não é possível selecionar <b>disconsiderWithJustification</b> em <i>condition->type</i> com o parâmetro<br> <i>showDetailedJustifications</i> marcado. Gostaria de continuar sem a condição?',
+                      },
+                      maxWidth: '90dvw',
+                      panelClass: 'confirmation-dialog',
+                      closeOnNavigation: false,
+                    })
+                      .afterClosed()
+                      .pipe(takeUntil(this.ngUnsubscribe)));
+
+                    if (result) {
+                      return Promise.resolve(null);
+                    } else {
+                      return Promise.reject(null);
+                    }
+                  }
+
+                  if (condition?.ignoreBHAbsence) {
+                    const result = await lastValueFrom(this.dialogService.openDialog(ConfirmationDialogComponent, {
+                      data: {
+                        message: 'Não é possível marcar <i>condition->ignoreBHAbsence</i> com o parâmetro<br> <i>showDetailedJustifications</i> marcado. Gostaria de continuar sem a condição?',
+                      },
+                      maxWidth: '90dvw',
+                      panelClass: 'confirmation-dialog',
+                      closeOnNavigation: false,
+                    })
+                      .afterClosed()
+                      .pipe(takeUntil(this.ngUnsubscribe)));
+
+                    if (result) {
+                      return Promise.resolve(null);
+                    } else {
+                      return Promise.reject(null);
+                    }
+                  }
+                }
+
+                return Promise.resolve(value);
+              },
+            },
+            ...this.generateFiltersParameters(),
+          ],
+          reportProgressLabel: '',
         },
 
         {
