@@ -531,7 +531,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               description: 'Mostra os valores de ausência para cada justificativa',
             },
             {
-              name: 'showOnlyRegistriesWithAbsence',
+              name: 'showOnlyEmployeesWithAbsence',
               type: 'BOOLEAN',
               description: 'Mostra somente empregados com alguma ausência',
             },
