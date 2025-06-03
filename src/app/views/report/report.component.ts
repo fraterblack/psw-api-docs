@@ -516,7 +516,7 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
           description: 'Este relatório depende da funcionalidade Absenteísmo habilitada no sistema',
           service: ApiServiceUrl.TIMESHEET,
           path: '/external/v1/report/absenteeism',
-          docUrl: '#todo',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#e3ae0d9a-187c-412b-b717-624b341998e2',
           parameters: [
             ...this.generatePeriodParameters(),
             ...this.generateIncludeFiredParameters(),
