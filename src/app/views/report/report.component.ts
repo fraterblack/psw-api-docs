@@ -460,6 +460,19 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         },
 
         {
+          name: 'Observações Apuração de Ponto',
+          service: ApiServiceUrl.TIMESHEET,
+          path: '/external/v1/report/observations',
+          docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#162a3450-f3c7-4122-9c91-21344cfeded3',
+          parameters: [
+            ...this.generatePeriodParameters(),
+            ...this.generateIncludeFiredParameters(),
+            ...this.generateFiltersParameters(),
+          ],
+          reportProgressLabel: 'Empregados sendo analisados',
+        },
+
+        {
           name: 'Extrato de Banco de Horas',
           description: 'Este relatório depende da funcionalidade Banco de Horas habilitada no sistema',
           service: ApiServiceUrl.TIMESHEET,
