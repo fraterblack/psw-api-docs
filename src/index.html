@@ -26,18 +26,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/dark.min.css"
     />
-    <script>
-      window.addEventListener("online", updateOnlineStatus);
-      window.addEventListener("offline", updateOnlineStatus);
-
-      function updateOnlineStatus(event) {
-        if (!navigator.onLine) {
-          document.body.classList.add("app-offline");
-        } else {
-          document.body.classList.remove("app-offline");
-        }
-      }
-    </script>
+    <script src="assets/js/online-status.js"></script>
     <meta name="theme-color" content="#728b98" />
   </head>
   <body class="app mat-typography">
