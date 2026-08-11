@@ -196,8 +196,6 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
       .subscribe(
         // On watching events
         (data: any) => {
-          console.log(`Monitoring progress (${reportId})`, data);
-
           // If complete, means the processing is finished
           if (data.complete) {
             this.reportData = JSON.stringify(
@@ -227,8 +225,6 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         },
         // On error
         (error: any) => {
-          console.error(`Monitoring error (${reportId})`, error);
-
           this.reportData = JSON.stringify(
             error?.data ? JSON.parse(error.data) : error,
             null,
@@ -239,8 +235,6 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
         },
         // On finally
         () => {
-          console.log(`Monitoring complete (${reportId})`);
-
           setTimeout(() => {
             const element = document.getElementById('reportProgress');
             if (element) {

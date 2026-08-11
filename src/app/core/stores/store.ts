@@ -2,6 +2,9 @@ import { ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { Unsubscrable } from '../../shared/views/extendable/unsubscrable';
+import { FragmentedStorage } from './fragmented-storage';
+
+const AUTH_STORAGE_NAME = 'auth_data';
 
 /**
  * Store authenticated user data
@@ -24,7 +27,7 @@ export abstract class Store<T> extends Unsubscrable {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(src => this.value = src);
 
-    const previousStoredData = localStorage.getItem('auth_data');
+    const previousStoredData = this.restoreStoredData();
     if (previousStoredData) {
       this.changeSource(JSON.parse(previousStoredData));
     }
@@ -34,7 +37,7 @@ export abstract class Store<T> extends Unsubscrable {
     this.source.next(source);
 
     if (saveInSession) {
-      localStorage.setItem('auth_data', JSON.stringify(source));
+      FragmentedStorage.setItem(AUTH_STORAGE_NAME, JSON.stringify(source));
     }
   }
 
@@ -45,6 +48,22 @@ export abstract class Store<T> extends Unsubscrable {
   reset(): void {
     this.changeSource(null);
 
-    localStorage.removeItem('auth_data');
+    FragmentedStorage.removeItem(AUTH_STORAGE_NAME);
+  }
+
+  /**
+   * Recovers the stored data, migrating it from the previous single key storage when needed
+   */
+  private restoreStoredData(): string {
+    const legacyStoredData = localStorage.getItem(AUTH_STORAGE_NAME);
+    if (legacyStoredData) {
+      localStorage.removeItem(AUTH_STORAGE_NAME);
+
+      FragmentedStorage.setItem(AUTH_STORAGE_NAME, legacyStoredData);
+
+      return legacyStoredData;
+    }
+
+    return FragmentedStorage.getItem(AUTH_STORAGE_NAME);
   }
 }
