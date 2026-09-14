@@ -37,7 +37,9 @@
                 {{ selectedEndpoint.service }}{{ selectedEndpoint.path }}
               </span>
             </mat-card-title>
-            <mat-card-subtitle>GET</mat-card-subtitle>
+            <mat-card-subtitle>
+              {{ selectedEndpoint.type === 'IMPORT' ? 'POST' : 'GET' }}
+            </mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -94,6 +96,63 @@
               </div>
             </div>
           </form>
+          <!-- IMPORT PARAMETERS -->
+          <form
+            [formGroup]="parametersFormGroup"
+            *ngIf="selectedEndpoint.type === 'IMPORT'"
+          >
+            <div class="row mt-2">
+              <div class="col">
+                <p>
+                  Importa registros de forma síncrona. O corpo da requisição deve
+                  ser uma lista <i>(array)</i> com <strong>no mínimo 1 e no máximo
+                  10</strong> objetos, cujas chaves são os códigos
+                  <i>(code)</i> dos dados aceitos na importação. Listas fora desse
+                  limite são rejeitadas por completo (status 400).
+                </p>
+                <p>
+                  Os dados aceitos são retornados pelo endpoint
+                  <strong>
+                    [GET] {{ selectedEndpoint.service
+                    }}{{ selectedEndpoint.importFieldsPath }}
+                  </strong>
+                  <button
+                    type="button"
+                    mat-button
+                    color="accent"
+                    [disabled]="isBusy || !authentication?.token"
+                    (click)="onLoadImportFields()"
+                  >
+                    Consultar
+                  </button>
+                </p>
+                <p>
+                  A resposta (status 200) é uma lista com o resultado de cada
+                  registro, na mesma ordem da lista enviada:
+                  <strong>index</strong> (posição do registro, iniciando em 0),
+                  <strong>status</strong> (<i>added</i>: registro criado;
+                  <i>duplicated</i>: registro já existente; <i>invalid</i>:
+                  registro não importado por erro), <strong>id</strong> (ID do
+                  registro criado, quando <i>added</i>) e
+                  <strong>message</strong> (motivo da falha, quando
+                  <i>invalid</i>). A falha em um registro não impede a importação
+                  dos demais.
+                </p>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col">Corpo da requisição <i>(body)</i></div>
+            </div>
+            <div class="row mt-2">
+              <div class="col">
+                <textarea
+                  formControlName="param1"
+                  class="w-100 textarea-field"
+                  rows="12"
+                ></textarea>
+              </div>
+            </div>
+          </form>
         </mat-card-content>
       </mat-card>
     </div>
@@ -132,10 +191,37 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Requisição</mat-card-title>
-            <mat-card-subtitle>[GET] {{ requestUrl }}</mat-card-subtitle>
+            <mat-card-subtitle>[{{ requestMethod }}] {{ requestUrl }}</mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
+          <ng-container *ngIf="showImportFieldTypes">
+            <div class="row">
+              <div class="col mt-2"><h3>Tipos aceitos</h3></div>
+            </div>
+            <div class="row">
+              <div class="col" style="overflow-x: auto">
+                <table class="data-table w-100 mb-3">
+                  <thead>
+                    <tr>
+                      <th>Tipo (type)</th>
+                      <th>Nome na tela</th>
+                      <th>Explicação</th>
+                      <th>Como o "Valor Padrão" é preenchido</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of importFieldTypes">
+                      <td><strong>{{ item.type }}</strong></td>
+                      <td>{{ item.name }}</td>
+                      <td>{{ item.description }}</td>
+                      <td>{{ item.defaultValue }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
           <div class="row">
             <div class="col mt-2"><h3>Resposta</h3></div>
           </div>

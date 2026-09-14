@@ -27,9 +27,58 @@ export class DirectoryComponent extends AppComponent implements OnInit {
   // Save authentication data
   authentication: Auth;
 
+  requestMethod: 'GET' | 'POST';
   requestUrl: string;
   requestResult: any;
   isBusy = false;
+
+  // Shown along with the import fields request result
+  showImportFieldTypes = false;
+  importFieldTypes = [
+    {
+      type: 'string',
+      name: 'Texto',
+      description: 'Texto livre, pode ter tamanho máximo (maxLength).',
+      defaultValue: 'Campo de texto com limite de caracteres',
+    },
+    {
+      type: 'integer',
+      name: 'Número inteiro',
+      description: 'Número inteiro sem sinal e sem casas decimais.',
+      defaultValue: 'Campo numérico que só aceita ^\\d+$',
+    },
+    {
+      type: 'uuid',
+      name: 'Identificador (UUID)',
+      description: 'Identificador único no formato UUID v4.',
+      defaultValue: 'Campo de texto que valida o formato UUID v4',
+    },
+    {
+      type: 'dateOnly',
+      name: 'Data',
+      description: 'Data sem hora.',
+      defaultValue: 'Campo com máscara 0000-00-00 (AAAA-MM-DD)',
+    },
+    {
+      type: 'custom',
+      name: 'Lista de opções',
+      description: 'Valor restrito a uma lista fixa que o backend envia em allowedCustomOptions.',
+      defaultValue: 'Dropdown com essas opções; o que é enviado é o value',
+    },
+    {
+      type: 'model',
+      name: 'Seleção',
+      description: 'Referência a um registro que já existe. O campo model diz qual: company, schedule, role, department, structure, '
+        + 'group ou city. Pode aceitar mais de um valor (multiple).',
+      defaultValue: 'Select paginado do model; só os ids são enviados. Para city, primeiro se escolhe a UF para filtrar as cidades',
+    },
+    {
+      type: 'modelAppendable',
+      name: 'Seleção (Auto cadastro)',
+      description: 'Também referencia um registro. Pelo nome, o registro seria criado automaticamente se não existir.',
+      defaultValue: 'Campo de texto livre (o valor é enviado como texto)',
+    },
+  ];
 
   parametersFormGroup = new UntypedFormGroup({
     param1: new UntypedFormControl(),
@@ -67,7 +116,36 @@ export class DirectoryComponent extends AppComponent implements OnInit {
   onEndpointChangeChange() {
     this.requestResult = null;
     this.requestUrl = null;
+    this.showImportFieldTypes = false;
     this.parametersFormGroup.reset();
+
+    if (this.selectedEndpoint?.bodyExample) {
+      this.parametersFormGroup.patchValue({
+        param1: JSON.stringify(this.selectedEndpoint.bodyExample, null, 2),
+      });
+    }
+  }
+
+  async onLoadImportFields() {
+    if (!this.selectedEndpoint?.importFieldsPath) {
+      return;
+    }
+
+    const importFieldsEndpoint = `${this.selectedEndpoint.service}${this.selectedEndpoint.importFieldsPath}`;
+
+    this.requestMethod = 'GET';
+    this.requestUrl = importFieldsEndpoint;
+    this.requestResult = null;
+    this.showImportFieldTypes = false;
+
+    const result = await this.runGetRequest(
+      importFieldsEndpoint,
+      null,
+      (active: boolean) => this.isBusy = active,
+    );
+
+    this.requestResult = JSON.stringify(result || {}, null, 2);
+    this.showImportFieldTypes = !!result && !result.error;
   }
 
   async onSend() {
@@ -75,12 +153,38 @@ export class DirectoryComponent extends AppComponent implements OnInit {
       return;
     }
 
+    this.requestMethod = this.selectedEndpoint.type === 'IMPORT' ? 'POST' : 'GET';
     this.requestUrl = null;
     this.requestResult = null;
+    this.showImportFieldTypes = false;
 
     const rawParameters = this.parametersFormGroup.getRawValue();
 
     switch (this.selectedEndpoint.type) {
+      case 'IMPORT':
+        let body: any;
+
+        try {
+          body = JSON.parse(rawParameters.param1 || '');
+        } catch {
+          this.emitWarningMessage('Informe um JSON válido no corpo da requisição');
+          return;
+        }
+
+        this.requestUrl = `${this.selectedEndpoint.service}${this.selectedEndpoint.path}`;
+
+        this.requestResult = JSON.stringify(
+          await this.runPostRequest(
+            this.requestUrl,
+            body,
+            (active: boolean) => this.isBusy = active,
+          ) || {},
+          null,
+          2,
+        );
+
+        break;
+
       case 'FIND_BY_ID':
 
         if (!rawParameters.param1) {
@@ -162,6 +266,36 @@ export class DirectoryComponent extends AppComponent implements OnInit {
       .finally(() => (onLoadingCallback || new Function())(false));
   }
 
+  private async runPostRequest(
+    endpointUrl: string,
+    body: any,
+    onLoadingCallback?: (active: boolean) => void,
+  ): Promise<any> {
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
+    (onLoadingCallback || new Function())(true);
+    return lastValueFrom(
+      this.apiService.post(
+        endpointUrl,
+        body,
+        null,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authentication.token}`,
+          'Content-Type': 'application/json',
+        }),
+      ),
+    )
+      .then((data) => {
+        this.emitSuccessMessage('Requisição concluída com sucesso');
+        return data;
+      })
+      .catch(error => this.handleError(error))
+      .finally(() => (onLoadingCallback || new Function())(false));
+  }
+
   private populateEndpoints() {
     this.endpoints = [
       // Employees
@@ -197,6 +331,22 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         path: '/external/v1/employees/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#4f7d955e-4c4f-41cb-8177-b8e7c3ded88d',
       },
+      {
+        type: 'IMPORT',
+        name: 'Empregados (Importar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/employees',
+        importFieldsPath: '/external/v1/employees/import-fields',
+        bodyExample: [
+          {
+            name: 'Nome do Empregado',
+            cpf: '000.000.000-00',
+            company: 'ID ou nome da empresa',
+            schedule: 'ID ou nome do horário',
+            hiringAt: '2025-01-01',
+          },
+        ],
+      },
       // Companies
       {
         type: 'LIST',
@@ -219,6 +369,22 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/companies/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#cbeecce9-3d41-4c0c-b279-f7fa66f3df9f',
+      },
+      {
+        type: 'IMPORT',
+        name: 'Empresas (Importar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/companies',
+        importFieldsPath: '/external/v1/companies/import-fields',
+        bodyExample: [
+          {
+            companyType: 'company',
+            name: 'Nome Fantasia',
+            legalName: 'Razão Social',
+            nationalIdentity: '00.000.000/0001-00',
+            startedAt: '2025-01-01',
+          },
+        ],
       },
       // Schedules
       {
@@ -316,6 +482,18 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         path: '/external/v1/departments/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#bf10727c-14d4-4b3e-926d-f41ae17c234c',
       },
+      {
+        type: 'IMPORT',
+        name: 'Departamentos (Importar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/departments',
+        importFieldsPath: '/external/v1/departments/import-fields',
+        bodyExample: [
+          {
+            name: 'Nome do Departamento',
+          },
+        ],
+      },
       // Roles
       {
         type: 'LIST',
@@ -331,6 +509,18 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/roles/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#c5c993f2-f9a9-42fd-832c-db0d96913379',
+      },
+      {
+        type: 'IMPORT',
+        name: 'Funções (Importar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/roles',
+        importFieldsPath: '/external/v1/roles/import-fields',
+        bodyExample: [
+          {
+            name: 'Nome da Função',
+          },
+        ],
       },
       // Structures
       {
@@ -348,6 +538,19 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         path: '/external/v1/structures/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#89ff3158-37ed-4bd4-9492-76abfe2de76f',
       },
+      {
+        type: 'IMPORT',
+        name: 'Estruturas (Importar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/structures',
+        importFieldsPath: '/external/v1/structures/import-fields',
+        bodyExample: [
+          {
+            name: 'Nome da Estrutura',
+            prior: 'ID ou nome da estrutura superior (opcional)',
+          },
+        ],
+      },
       // Groups
       {
         type: 'LIST',
@@ -363,6 +566,18 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/groups/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#d498caaf-e637-4cd7-87b6-22f79b01bb78',
+      },
+      {
+        type: 'IMPORT',
+        name: 'Grupos (Importar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/groups',
+        importFieldsPath: '/external/v1/groups/import-fields',
+        bodyExample: [
+          {
+            name: 'Nome do Grupo',
+          },
+        ],
       },
       // Justifications
       {
