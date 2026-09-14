@@ -1,0 +1,187 @@
+<div class="container-fluid px-3 py-4">
+  <div class="row">
+    <div class="col">
+      <mat-form-field color="accent" appearance="outline">
+        <mat-label>Endpoint</mat-label>
+        <mat-select
+          [(ngModel)]="selectedEndpoint"
+          (selectionChange)="onEndpointChange()"
+          [hideSingleSelectionIndicator]="true"
+          placeholder="Selecione um endpoint"
+        >
+          <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
+            {{ endpoint.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error><bfv-messages></bfv-messages></mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="selectedEndpoint">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>
+              <a
+                *ngIf="selectedEndpoint.docUrl"
+                mat-icon-button
+                [href]="selectedEndpoint.docUrl"
+                target="_blank"
+                matTooltip="Ver a documentação"
+              >
+                <mat-icon>menu_book</mat-icon>
+              </a>
+              <span>
+                {{ selectedEndpoint.service }}{{ selectedEndpoint.path }}
+              </span>
+            </mat-card-title>
+            <mat-card-subtitle>POST</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="bodyFormGroup">
+            <div class="row mt-2">
+              <div class="col">
+                <p>
+                  Importa registros de forma síncrona. O corpo da requisição
+                  deve ser uma lista <i>(array)</i> com
+                  <strong>no mínimo 1 e no máximo 10</strong> objetos, cujas
+                  chaves são os códigos <i>(code)</i> dos dados aceitos na
+                  importação. Listas fora desse limite são rejeitadas por
+                  completo (status 400).
+                </p>
+                <p>
+                  Os dados aceitos são retornados pelo endpoint
+                  <strong>
+                    [GET] {{ selectedEndpoint.service
+                    }}{{ selectedEndpoint.importFieldsPath }}
+                  </strong>
+                  <button
+                    type="button"
+                    mat-button
+                    color="accent"
+                    [disabled]="isBusy || !authentication?.token"
+                    (click)="onLoadImportFields()"
+                  >
+                    Consultar
+                  </button>
+                </p>
+                <p>
+                  A resposta (status 200) é uma lista com o resultado de cada
+                  registro, na mesma ordem da lista enviada:
+                  <strong>index</strong> (posição do registro, iniciando em 0),
+                  <strong>status</strong> (<i>added</i>: registro criado;
+                  <i>duplicated</i>: registro já existente; <i>invalid</i>:
+                  registro não importado por erro), <strong>id</strong> (ID do
+                  registro criado, quando <i>added</i>) e
+                  <strong>message</strong> (motivo da falha, quando
+                  <i>invalid</i>). A falha em um registro não impede a
+                  importação dos demais.
+                </p>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col">Exemplo Corpo da requisição <i>(body)</i></div>
+            </div>
+            <div class="row mt-2">
+              <div class="col">
+                <textarea
+                  formControlName="body"
+                  class="w-100 textarea-field"
+                  rows="12"
+                ></textarea>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-auto">
+      <button
+        *ngIf="!isBusy"
+        class="me-2"
+        type="button"
+        mat-raised-button
+        color="accent"
+        [disabled]="!selectedEndpoint || !authentication?.token"
+        (click)="onSend()"
+      >
+        <span> </span>
+        Enviar
+      </button>
+      <mat-spinner *ngIf="isBusy" color="accent" [diameter]="26"></mat-spinner>
+    </div>
+    <div
+      class="col-auto pt-2"
+      color="warn"
+      *ngIf="!authentication?.token && selectedEndpoint"
+    >
+      <i>Faça a autenticação para continuar</i>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="row" *ngIf="requestUrl">
+    <div class="col">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Requisição</mat-card-title>
+            <mat-card-subtitle
+              >[{{ requestMethod }}] {{ requestUrl }}</mat-card-subtitle
+            >
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <ng-container *ngIf="showImportFieldTypes">
+            <div class="row">
+              <div class="col mt-2"><h3>Tipos aceitos</h3></div>
+            </div>
+            <div class="row">
+              <div class="col" style="overflow-x: auto">
+                <table class="data-table w-100 mb-3">
+                  <thead>
+                    <tr>
+                      <th>Tipo</th>
+                      <th></th>
+                      <th>Descrição</th>
+                      <th>Formato</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of importFieldTypes">
+                      <td>
+                        <strong>{{ item.type }}</strong>
+                      </td>
+                      <td>{{ item.name }}</td>
+                      <td>{{ item.description }}</td>
+                      <td>{{ item.defaultValue }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
+          <div class="row">
+            <div class="col mt-2"><h3>Resposta</h3></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <app-code-viewer
+                *ngIf="requestResult"
+                language="json"
+                [code]="requestResult"
+              ></app-code-viewer>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

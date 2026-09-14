@@ -31,7 +31,12 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
     {
       route: ViewRoute.DIRECTORY,
       icon: 'list',
-      name: 'Cadastros',
+      name: 'Consultas',
+    },
+    {
+      route: ViewRoute.IMPORTS,
+      icon: 'upload',
+      name: 'Importações',
     },
     {
       route: ViewRoute.REPORTS,

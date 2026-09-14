@@ -25,6 +25,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/directory/directory.module').then(m => m.DirectoryModule)
       },
       {
+        path: `${ViewRoute.IMPORTS}`,
+        loadChildren: () => import('./views/import/import.module').then(m => m.ImportModule)
+      },
+      {
         path: `${ViewRoute.REPORTS}`,
         loadChildren: () => import('./views/report/report.module').then(m => m.ReportModule)
       },
