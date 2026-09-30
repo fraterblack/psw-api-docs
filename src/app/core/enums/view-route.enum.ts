@@ -1,6 +1,6 @@
 export enum ViewRoute {
   ABOUT = 'sobre',
   DIRECTORY = 'consultas',
-  IMPORTS = 'importacoes',
+  DATA = 'dados',
   REPORTS = 'relatorios',
 }

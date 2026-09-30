@@ -5,14 +5,14 @@ import { NgBootstrapFormValidationModule } from 'ng-bootstrap-form-validation';
 
 import { AngularMaterialModule } from '../../angular-material.module';
 import { SharedModule } from '../../shared/shared.module';
-import { ImportRoutingModule } from './import-routing.module';
-import { ImportComponent } from './import.component';
+import { DataRoutingModule } from './data-routing.module';
+import { DataComponent } from './data.component';
 
 @NgModule({
   imports: [
     SharedModule,
 
-    ImportRoutingModule,
+    DataRoutingModule,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -20,9 +20,9 @@ import { ImportComponent } from './import.component';
     NgBootstrapFormValidationModule,
   ],
   declarations: [
-    ImportComponent,
+    DataComponent,
   ],
   providers: [
   ]
 })
-export class ImportModule { }
+export class DataModule { }

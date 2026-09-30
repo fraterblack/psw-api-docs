@@ -10,24 +10,25 @@ import { ApiService } from '../../core/services/api.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ErrorHelper } from '../../core/utils/error-helper';
+import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { AppComponent } from '../../shared/views/extendable/app-component';
-import { ImportEndpointParams } from './interfaces/import-endpoint-params.interface';
+import { DataEndpointParams } from './interfaces/data-endpoint-params.interface';
 
 @Component({
-  selector: 'app-import',
-  templateUrl: 'import.component.html'
+  selector: 'app-data',
+  templateUrl: 'data.component.html'
 })
-export class ImportComponent extends AppComponent implements OnInit {
-  // List of import endpoint parameters
-  endpoints: ImportEndpointParams[] = [];
+export class DataComponent extends AppComponent implements OnInit {
+  // List of data endpoint parameters
+  endpoints: DataEndpointParams[] = [];
 
   // Selected endpoint
-  selectedEndpoint: ImportEndpointParams;
+  selectedEndpoint: DataEndpointParams;
 
   // Save authentication data
   authentication: Auth;
 
-  // Import (POST) request
+  // Import (POST) or delete (DELETE) request
   requestUrl: string;
   requestResult: any;
   isSending = false;
@@ -89,8 +90,9 @@ export class ImportComponent extends AppComponent implements OnInit {
     },
   ];
 
-  bodyFormGroup = new UntypedFormGroup({
+  parametersFormGroup = new UntypedFormGroup({
     body: new UntypedFormControl(),
+    id: new UntypedFormControl(),
   });
 
   constructor(
@@ -113,6 +115,10 @@ export class ImportComponent extends AppComponent implements OnInit {
     return this.isSending || this.isLoadingImportFields;
   }
 
+  get selectedEndpointMethod(): string {
+    return this.selectedEndpoint?.type === 'DELETE' ? 'DELETE' : 'POST';
+  }
+
   ngOnInit(): void {
     this.populateEndpoints();
   }
@@ -122,8 +128,9 @@ export class ImportComponent extends AppComponent implements OnInit {
     this.requestUrl = null;
     this.importFieldsResult = null;
     this.showImportFieldTypes = false;
-    this.bodyFormGroup.reset({
-      body: this.selectedEndpoint ? JSON.stringify(this.selectedEndpoint.bodyExample, null, 2) : null,
+    this.parametersFormGroup.reset({
+      body: this.selectedEndpoint?.bodyExample ? JSON.stringify(this.selectedEndpoint.bodyExample, null, 2) : null,
+      id: null,
     });
   }
 
@@ -151,10 +158,22 @@ export class ImportComponent extends AppComponent implements OnInit {
       return;
     }
 
+    switch (this.selectedEndpoint.type) {
+      case 'IMPORT':
+        await this.sendImport();
+        break;
+
+      case 'DELETE':
+        await this.sendDelete();
+        break;
+    }
+  }
+
+  private async sendImport() {
     let body: any;
 
     try {
-      body = JSON.parse(this.bodyFormGroup.getRawValue().body || '');
+      body = JSON.parse(this.parametersFormGroup.getRawValue().body || '');
     } catch {
       this.emitWarningMessage('Informe um JSON válido no corpo da requisição');
       return;
@@ -172,6 +191,48 @@ export class ImportComponent extends AppComponent implements OnInit {
     ).finally(() => this.isSending = false);
 
     this.requestResult = JSON.stringify(result || {}, null, 2);
+  }
+
+  private async sendDelete() {
+    const id = (this.parametersFormGroup.getRawValue().id || '').trim();
+
+    if (!id) {
+      this.emitWarningMessage('Informe um ID');
+      return;
+    }
+
+    if (!this.authentication?.token) {
+      this.emitWarningMessage('Autentique-se para continuar');
+      return;
+    }
+
+    const confirmed = await lastValueFrom(this.dialogService.openDialog(ConfirmationDialogComponent, {
+      data: {
+        message: `Os dados serão excluídos permanentemente do sistema. Deseja realmente excluir o registro <b>${id}</b>?`,
+      },
+      maxWidth: '90dvw',
+      panelClass: 'confirmation-dialog',
+      closeOnNavigation: false,
+    })
+      .afterClosed()
+      .pipe(takeUntil(this.ngUnsubscribe)));
+
+    if (!confirmed) {
+      return;
+    }
+
+    const deleteEndpoint = `${this.selectedEndpoint.service}${this.selectedEndpoint.path}`
+      .replace('{id}', encodeURIComponent(id));
+
+    this.requestUrl = deleteEndpoint;
+    this.requestResult = null;
+    this.isSending = true;
+
+    const result = await this.runRequest(
+      this.apiService.delete(deleteEndpoint, null, this.generateHeaders()),
+    ).finally(() => this.isSending = false);
+
+    this.requestResult = JSON.stringify(result ?? {}, null, 2);
   }
 
   private async runRequest(
@@ -214,10 +275,13 @@ export class ImportComponent extends AppComponent implements OnInit {
 
   private populateEndpoints() {
     this.endpoints = [
+      // Employees
       {
-        name: 'Empregados',
+        type: 'IMPORT',
+        name: 'Empregados (Importar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/employees',
+        description: 'Importa empregados registrados.',
         importFieldsPath: '/external/v1/employees/import-fields',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#489c4506-8f0f-7308-aac9-10c3b2bee223',
         importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ae591606-95af-b204-cc3c-80fffeac1089',
@@ -232,9 +296,22 @@ export class ImportComponent extends AppComponent implements OnInit {
         ],
       },
       {
-        name: 'Empresas',
+        type: 'DELETE',
+        name: 'Empregados (Excluir)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/employees/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#997ee62f-0b74-f094-14ef-4a69ab3621d4',
+        description: 'Exclui empregado registrado por ID. Exclui o registro e, quando não restar outro registro, também o empregado. '
+          + 'Não é possível excluir registro com batidas, abonos parciais, justificativas de faltas, documentos, '
+          + 'atribuído a ciclo de Banco de Horas ou a Conciliação de Marcações.',
+      },
+      // Companies
+      {
+        type: 'IMPORT',
+        name: 'Empresas (Importar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/companies',
+        description: 'Importa empresas.',
         importFieldsPath: '/external/v1/companies/import-fields',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#558995b7-ae61-2a5d-421c-092245090d17',
         importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#e68a9fc4-be5e-1a9a-d6af-c712601c74fd',
@@ -249,9 +326,20 @@ export class ImportComponent extends AppComponent implements OnInit {
         ],
       },
       {
-        name: 'Departamentos',
+        type: 'DELETE',
+        name: 'Empresas (Excluir)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/companies/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#f12d2202-de49-68e5-658c-881223a5ce44',
+        description: 'Exclui empresa por ID. Não é possível excluir empresa com registros de empregados ou relacionada com equipamentos.',
+      },
+      // Departments
+      {
+        type: 'IMPORT',
+        name: 'Departamentos (Importar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/departments',
+        description: 'Importa departamentos.',
         importFieldsPath: '/external/v1/departments/import-fields',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#c5f2ad3d-5335-a6a3-832c-8f8a09fec76d',
         importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#eb224d63-da05-9484-7beb-a5fe91d009dc',
@@ -262,9 +350,20 @@ export class ImportComponent extends AppComponent implements OnInit {
         ],
       },
       {
-        name: 'Funções',
+        type: 'DELETE',
+        name: 'Departamentos (Excluir)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/departments/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#82283e48-5e7a-3f7f-2d20-403ebbf687ad',
+        description: 'Exclui departamento por ID. Não é possível excluir departamento atribuído a registros de empregados.',
+      },
+      // Roles
+      {
+        type: 'IMPORT',
+        name: 'Funções (Importar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/roles',
+        description: 'Importa funções.',
         importFieldsPath: '/external/v1/roles/import-fields',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#845ae098-ccff-0b95-6d14-86810c0bf090',
         importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#3a65d8d5-e35b-9209-e414-913d0e221482',
@@ -275,9 +374,20 @@ export class ImportComponent extends AppComponent implements OnInit {
         ],
       },
       {
-        name: 'Estruturas',
+        type: 'DELETE',
+        name: 'Funções (Excluir)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/roles/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#851909e7-44f0-8082-a20d-35ec33f6a3d4',
+        description: 'Exclui função por ID. Não é possível excluir função atribuída a registros de empregados.',
+      },
+      // Structures
+      {
+        type: 'IMPORT',
+        name: 'Estruturas (Importar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/structures',
+        description: 'Importa estruturas.',
         importFieldsPath: '/external/v1/structures/import-fields',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#7d32acec-d288-706b-d120-967c183c094e',
         importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ba2f2497-5a8f-e162-38e1-f5227871120e',
@@ -289,9 +399,20 @@ export class ImportComponent extends AppComponent implements OnInit {
         ],
       },
       {
-        name: 'Grupos',
+        type: 'DELETE',
+        name: 'Estruturas (Excluir)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/structures/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#6824aa29-1a61-114a-78e6-52b17e0d6370',
+        description: 'Exclui estrutura por ID. Não é possível excluir estrutura que possui estruturas filhas ou que está atribuída a registros de empregados.',
+      },
+      // Groups
+      {
+        type: 'IMPORT',
+        name: 'Grupos (Importar)',
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/groups',
+        description: 'Importa grupos.',
         importFieldsPath: '/external/v1/groups/import-fields',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#a6210037-30fa-0020-39f6-73365dd0227a',
         importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#b0817641-ad1e-b0b9-b007-30c58beda49d',
@@ -300,6 +421,14 @@ export class ImportComponent extends AppComponent implements OnInit {
             name: 'Nome do Grupo',
           },
         ],
+      },
+      {
+        type: 'DELETE',
+        name: 'Grupos (Excluir)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/groups/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#4ca8cfe0-2ada-716a-e2d3-2c3a727015ff',
+        description: 'Exclui grupo por ID. Não é possível excluir grupo atribuído a registros de empregados.',
       },
     ];
   }
