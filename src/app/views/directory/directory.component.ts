@@ -268,6 +268,22 @@ export class DirectoryComponent extends AppComponent implements OnInit {
         path: '/external/v1/dsr-settings/{id}',
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ba406a37-d79d-4fc6-bd85-e875f2a9e6ba',
       },
+      // Overtime daily settings
+      {
+        type: 'LIST',
+        name: 'Configurações de Extras Diárias (Listar)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/overtime-daily-settings',
+        queryParams: this.generatePaginationParameters(),
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#20758440-12f2-4239-a4e6-0762918cb7b0',
+      },
+      {
+        type: 'FIND_BY_ID',
+        name: 'Configurações de Extras Diárias (Retornar por ID)',
+        service: ApiServiceUrl.TIMESHEET,
+        path: '/external/v1/overtime-daily-settings/{id}',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#bb2ff984-4860-411c-8917-eef5af7ebb60',
+      },
       // Overtime monthly settings
       {
         type: 'LIST',
