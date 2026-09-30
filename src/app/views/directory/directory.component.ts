@@ -187,6 +187,12 @@ export class DirectoryComponent extends AppComponent implements OnInit {
             type: 'text',
             description: 'Quando informado, pesquisa empregados por CNPJ/CPF (Opcional) (Aceita valores com E sem caracteres de formatação)',
           },
+          {
+            name: 'includeAddress',
+            type: 'text',
+            description: 'Quando verdadeiro, carrega o endereço do empregado (Opcional) (Aceita os valores true ou false)',
+            placeholder: 'true',
+          },
         ],
         docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ea3d6a75-82a2-4df7-8a84-3486eae6f68e',
       },

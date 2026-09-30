@@ -9,4 +9,6 @@ export interface ImportEndpointParams {
   // Example of request body
   bodyExample: any;
   docUrl?: string;
+  // Documentation of the GET endpoint that returns the fields accepted in the import
+  importFieldsDocUrl?: string;
 }

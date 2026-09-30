@@ -332,6 +332,11 @@ export class ReportComponent extends AppComponent implements OnInit, OnDestroy {
               type: 'BOOLEAN',
               description: 'Indica se os abonos parciais devem ser exibidos no resultado',
             },
+            {
+              name: 'showEvents',
+              type: 'BOOLEAN',
+              description: 'Indica se os eventos devem ser exibidos no resultado',
+            },
             ...this.generateColumnsParameters(),
             ...this.generateFiltersParameters(),
           ],

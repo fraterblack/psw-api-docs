@@ -153,7 +153,18 @@
       <mat-card>
         <mat-card-header>
           <mat-card-title-group>
-            <mat-card-title>Campos aceitos</mat-card-title>
+            <mat-card-title>
+              <a
+                *ngIf="selectedEndpoint.importFieldsDocUrl"
+                mat-icon-button
+                [href]="selectedEndpoint.importFieldsDocUrl"
+                target="_blank"
+                matTooltip="Ver a documentação"
+              >
+                <mat-icon>menu_book</mat-icon>
+              </a>
+              <span>Campos aceitos</span>
+            </mat-card-title>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>

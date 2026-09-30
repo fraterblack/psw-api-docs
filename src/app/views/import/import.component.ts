@@ -52,6 +52,12 @@ export class ImportComponent extends AppComponent implements OnInit {
       defaultValue: 'Somente números sem sinal e sem casas decimais.',
     },
     {
+      type: 'boolean',
+      name: 'Verdadeiro ou falso',
+      description: 'Valor lógico.',
+      defaultValue: 'Aceita 1 e 0 ou true e false',
+    },
+    {
       type: 'uuid',
       name: 'Identificador (UUID)',
       description: 'Identificador único no formato UUID v4.',
@@ -213,6 +219,8 @@ export class ImportComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/employees',
         importFieldsPath: '/external/v1/employees/import-fields',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#489c4506-8f0f-7308-aac9-10c3b2bee223',
+        importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ae591606-95af-b204-cc3c-80fffeac1089',
         bodyExample: [
           {
             name: 'Nome do Empregado',
@@ -228,6 +236,8 @@ export class ImportComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/companies',
         importFieldsPath: '/external/v1/companies/import-fields',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#558995b7-ae61-2a5d-421c-092245090d17',
+        importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#e68a9fc4-be5e-1a9a-d6af-c712601c74fd',
         bodyExample: [
           {
             companyType: 'company',
@@ -243,6 +253,8 @@ export class ImportComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/departments',
         importFieldsPath: '/external/v1/departments/import-fields',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#c5f2ad3d-5335-a6a3-832c-8f8a09fec76d',
+        importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#eb224d63-da05-9484-7beb-a5fe91d009dc',
         bodyExample: [
           {
             name: 'Nome do Departamento',
@@ -254,6 +266,8 @@ export class ImportComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/roles',
         importFieldsPath: '/external/v1/roles/import-fields',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#845ae098-ccff-0b95-6d14-86810c0bf090',
+        importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#3a65d8d5-e35b-9209-e414-913d0e221482',
         bodyExample: [
           {
             name: 'Nome da Função',
@@ -265,6 +279,8 @@ export class ImportComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/structures',
         importFieldsPath: '/external/v1/structures/import-fields',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#7d32acec-d288-706b-d120-967c183c094e',
+        importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#ba2f2497-5a8f-e162-38e1-f5227871120e',
         bodyExample: [
           {
             name: 'Nome da Estrutura',
@@ -277,6 +293,8 @@ export class ImportComponent extends AppComponent implements OnInit {
         service: ApiServiceUrl.TIMESHEET,
         path: '/external/v1/groups',
         importFieldsPath: '/external/v1/groups/import-fields',
+        docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#a6210037-30fa-0020-39f6-73365dd0227a',
+        importFieldsDocUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#b0817641-ad1e-b0b9-b007-30c58beda49d',
         bodyExample: [
           {
             name: 'Nome do Grupo',
