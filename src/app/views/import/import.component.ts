@@ -27,10 +27,14 @@ export class ImportComponent extends AppComponent implements OnInit {
   // Save authentication data
   authentication: Auth;
 
-  requestMethod: 'GET' | 'POST';
+  // Import (POST) request
   requestUrl: string;
   requestResult: any;
-  isBusy = false;
+  isSending = false;
+
+  // Import fields (GET) request
+  importFieldsResult: any;
+  isLoadingImportFields = false;
 
   // Shown along with the import fields request result
   showImportFieldTypes = false;
@@ -99,6 +103,10 @@ export class ImportComponent extends AppComponent implements OnInit {
       });
   }
 
+  get isBusy(): boolean {
+    return this.isSending || this.isLoadingImportFields;
+  }
+
   ngOnInit(): void {
     this.populateEndpoints();
   }
@@ -106,6 +114,7 @@ export class ImportComponent extends AppComponent implements OnInit {
   onEndpointChange() {
     this.requestResult = null;
     this.requestUrl = null;
+    this.importFieldsResult = null;
     this.showImportFieldTypes = false;
     this.bodyFormGroup.reset({
       body: this.selectedEndpoint ? JSON.stringify(this.selectedEndpoint.bodyExample, null, 2) : null,
@@ -119,16 +128,15 @@ export class ImportComponent extends AppComponent implements OnInit {
 
     const importFieldsEndpoint = `${this.selectedEndpoint.service}${this.selectedEndpoint.importFieldsPath}`;
 
-    this.requestMethod = 'GET';
-    this.requestUrl = importFieldsEndpoint;
-    this.requestResult = null;
+    this.importFieldsResult = null;
     this.showImportFieldTypes = false;
+    this.isLoadingImportFields = true;
 
     const result = await this.runRequest(
       this.apiService.get(importFieldsEndpoint, null, this.generateHeaders()),
-    );
+    ).finally(() => this.isLoadingImportFields = false);
 
-    this.requestResult = JSON.stringify(result || {}, null, 2);
+    this.importFieldsResult = JSON.stringify(result || {}, null, 2);
     this.showImportFieldTypes = !!result && !result.error;
   }
 
@@ -148,34 +156,47 @@ export class ImportComponent extends AppComponent implements OnInit {
 
     const importEndpoint = `${this.selectedEndpoint.service}${this.selectedEndpoint.path}`;
 
-    this.requestMethod = 'POST';
     this.requestUrl = importEndpoint;
     this.requestResult = null;
-    this.showImportFieldTypes = false;
+    this.isSending = true;
 
-    this.requestResult = JSON.stringify(
-      await this.runRequest(
-        this.apiService.post(importEndpoint, body, null, this.generateHeaders()),
-      ) || {},
-      null,
-      2,
-    );
+    const result = await this.runRequest(
+      this.apiService.post(importEndpoint, body, null, this.generateHeaders()),
+      data => this.emitImportResultMessage(data),
+    ).finally(() => this.isSending = false);
+
+    this.requestResult = JSON.stringify(result || {}, null, 2);
   }
 
-  private async runRequest(request: ReturnType<ApiService['get']>): Promise<any> {
+  private async runRequest(
+    request: ReturnType<ApiService['get']>,
+    onSuccess: (data: any) => void = () => this.emitSuccessMessage('Requisição concluída com sucesso'),
+  ): Promise<any> {
     if (!this.authentication?.token) {
       this.emitWarningMessage('Autentique-se para continuar');
       return;
     }
 
-    this.isBusy = true;
     return lastValueFrom(request)
       .then((data) => {
-        this.emitSuccessMessage('Requisição concluída com sucesso');
+        onSuccess(data);
         return data;
       })
-      .catch(error => this.handleError(error))
-      .finally(() => this.isBusy = false);
+      .catch(error => this.handleError(error));
+  }
+
+  // Emits a message according to the status of each imported record
+  private emitImportResultMessage(data: any) {
+    const items: any[] = Array.isArray(data) ? data : [];
+    const invalidCount = items.filter(item => item?.status === 'invalid').length;
+
+    if (invalidCount && invalidCount === items.length) {
+      this.emitErrorMessage('Requisição inválida');
+    } else if (invalidCount) {
+      this.emitWarningMessage('Requisição concluída com alguns erros');
+    } else {
+      this.emitSuccessMessage('Requisição concluída com sucesso');
+    }
   }
 
   private generateHeaders(): HttpHeaders {

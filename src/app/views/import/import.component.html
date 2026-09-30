@@ -45,28 +45,18 @@
             <div class="row mt-2">
               <div class="col">
                 <p>
-                  Importa registros de forma síncrona. O corpo da requisição
-                  deve ser uma lista <i>(array)</i> com
-                  <strong>no mínimo 1 e no máximo 10</strong> objetos, cujas
-                  chaves são os códigos <i>(code)</i> dos dados aceitos na
-                  importação. Listas fora desse limite são rejeitadas por
-                  completo (status 400).
+                  Importa {{ selectedEndpoint.name | lowercase }} de forma
+                  síncrona. O corpo da requisição deve ser uma lista
+                  <i>(array)</i> de objetos JSON, cujas chaves são os códigos
+                  <i>(code)</i> dos campos aceitos na importação. <br />
+                  A lista deve ter <strong>no mínimo 1 e no máximo 10</strong>
+                  objetos. Listas fora deste limite são rejeitadas por completo
+                  (status 400).
                 </p>
                 <p>
-                  Os dados aceitos são retornados pelo endpoint
-                  <strong>
-                    [GET] {{ selectedEndpoint.service
-                    }}{{ selectedEndpoint.importFieldsPath }}
-                  </strong>
-                  <button
-                    type="button"
-                    mat-button
-                    color="accent"
-                    [disabled]="isBusy || !authentication?.token"
-                    (click)="onLoadImportFields()"
-                  >
-                    Consultar
-                  </button>
+                  Para saber quais campos são aceitos e seus respectivos
+                  códigos, consulte a seção <strong>Campos aceitos</strong>, no
+                  final da página.
                 </p>
                 <p>
                   A resposta (status 200) é uma lista com o resultado de cada
@@ -103,18 +93,22 @@
   <div class="row mt-4">
     <div class="col-auto">
       <button
-        *ngIf="!isBusy"
+        *ngIf="!isSending"
         class="me-2"
         type="button"
         mat-raised-button
         color="accent"
-        [disabled]="!selectedEndpoint || !authentication?.token"
+        [disabled]="isBusy || !selectedEndpoint || !authentication?.token"
         (click)="onSend()"
       >
         <span> </span>
         Enviar
       </button>
-      <mat-spinner *ngIf="isBusy" color="accent" [diameter]="26"></mat-spinner>
+      <mat-spinner
+        *ngIf="isSending"
+        color="accent"
+        [diameter]="26"
+      ></mat-spinner>
     </div>
     <div
       class="col-auto pt-2"
@@ -133,15 +127,85 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Requisição</mat-card-title>
-            <mat-card-subtitle
-              >[{{ requestMethod }}] {{ requestUrl }}</mat-card-subtitle
-            >
+            <mat-card-subtitle>[POST] {{ requestUrl }}</mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
+          <div class="row">
+            <div class="col mt-2"><h3>Resposta</h3></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <app-code-viewer
+                *ngIf="requestResult"
+                language="json"
+                [code]="requestResult"
+              ></app-code-viewer>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-4" *ngIf="selectedEndpoint">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Campos aceitos</mat-card-title>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row mt-2 align-items-center">
+            <div class="col-auto">
+              Os dados aceitos são retornados pelo endpoint
+              <strong>
+                [GET] {{ selectedEndpoint.service
+                }}{{ selectedEndpoint.importFieldsPath }}
+              </strong>
+            </div>
+            <div class="col-auto">
+              <button
+                *ngIf="!isLoadingImportFields"
+                type="button"
+                mat-button
+                color="accent"
+                [disabled]="isBusy || !authentication?.token"
+                (click)="onLoadImportFields()"
+              >
+                Consultar
+              </button>
+              <mat-spinner
+                *ngIf="isLoadingImportFields"
+                color="accent"
+                [diameter]="26"
+              ></mat-spinner>
+            </div>
+          </div>
+          <ng-container *ngIf="importFieldsResult">
+            <div class="row">
+              <div class="col mt-2"><h3>Resposta</h3></div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <app-code-viewer
+                  language="json"
+                  [code]="importFieldsResult"
+                ></app-code-viewer>
+              </div>
+            </div>
+          </ng-container>
           <ng-container *ngIf="showImportFieldTypes">
             <div class="row">
-              <div class="col mt-2"><h3>Tipos aceitos</h3></div>
+              <div class="col mt-3">
+                <h3 class="mb-1">Especificação dos tipos de campo</h3>
+                <p>
+                  Referência de todos os tipos que um campo de importação pode
+                  ter. Nem todos são necessariamente utilizados pela importação
+                  selecionada.
+                </p>
+              </div>
             </div>
             <div class="row">
               <div class="col" style="overflow-x: auto">
@@ -168,18 +232,6 @@
               </div>
             </div>
           </ng-container>
-          <div class="row">
-            <div class="col mt-2"><h3>Resposta</h3></div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <app-code-viewer
-                *ngIf="requestResult"
-                language="json"
-                [code]="requestResult"
-              ></app-code-viewer>
-            </div>
-          </div>
         </mat-card-content>
       </mat-card>
     </div>
