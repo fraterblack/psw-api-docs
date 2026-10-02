@@ -43,6 +43,11 @@ export class DefaultContainerComponent extends Unsubscrable implements OnInit, O
       icon: 'data_object',
       name: 'Relatórios',
     },
+    {
+      route: ViewRoute.REP_P_DATA,
+      icon: 'file_download',
+      name: 'Exportar dados REP-P',
+    },
   ];
   authentication: Auth;
 

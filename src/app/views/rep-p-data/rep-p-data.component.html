@@ -1,0 +1,128 @@
+<div class="container-fluid px-3 py-4" id="repPDataTop">
+  <div class="row">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>
+              <a
+                *ngIf="endpoint.docUrl"
+                mat-icon-button
+                [href]="endpoint.docUrl"
+                target="_blank"
+                matTooltip="Ver a documentação"
+              >
+                <mat-icon>menu_book</mat-icon>
+              </a>
+              <span> {{ endpoint.service }}{{ endpoint.path }} </span>
+            </mat-card-title>
+            <mat-card-subtitle>GET</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="parametersFormGroup">
+            <div class="row mt-2">
+              <div class="col">Parâmetros da URL <i>(query parameters)</i></div>
+            </div>
+            <div class="row mt-2" *ngFor="let param of endpoint.queryParams">
+              <div class="row mt-2">
+                <div class="col col-xl-2 col-3">
+                  <strong>{{ param.name }}</strong>
+                </div>
+                <div class="col col-xl-3 col-4">
+                  <input
+                    [type]="param.type"
+                    [formControlName]="param.name"
+                    [placeholder]="param.placeholder || ''"
+                    class="w-100 input-field"
+                  />
+                </div>
+                <div class="col pt-1">
+                  <small>{{ param.description }}</small>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-auto">
+      <button
+        *ngIf="!isBusy"
+        class="me-2"
+        type="button"
+        mat-raised-button
+        color="accent"
+        [disabled]="!authentication?.token"
+        (click)="onSend()"
+      >
+        <span> </span>
+        Enviar
+      </button>
+      <mat-spinner *ngIf="isBusy" color="accent" [diameter]="26"></mat-spinner>
+    </div>
+    <div class="col-auto pt-2" color="warn" *ngIf="!authentication?.token">
+      <i>Faça a autenticação para continuar</i>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="row" *ngIf="requestUrl">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Requisição</mat-card-title>
+            <mat-card-subtitle>[GET] {{ requestUrl }}</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row">
+            <div class="col mt-2"><h3>Resposta</h3></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <app-code-viewer
+                *ngIf="requestResult"
+                language="json"
+                [code]="requestResult"
+              ></app-code-viewer>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-4" *ngIf="nextPageUrl">
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Próxima Página</mat-card-title>
+            <mat-card-subtitle>[GET] {{ nextPageUrl }}</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row mt-2">
+            <div class="col-auto">
+              <button
+                type="button"
+                mat-raised-button
+                color="accent"
+                [disabled]="!authentication?.token"
+                (click)="onSendNextPage()"
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -7,4 +7,5 @@ export const environment = {
   core_api: 'http://demo.pontosystemweb.com.br/api/core',
   timesheet_api: 'http://demo.pontosystemweb.com.br/api/timesheet',
   collector_api: 'http://demo.pontosystemweb.com.br/api/collector',
+  rep_p_report_api: 'http://demo.pontosystemweb.com.br/api/rep-p-report',
 };

@@ -3,4 +3,5 @@ export enum ViewRoute {
   DIRECTORY = 'consultas',
   DATA = 'dados',
   REPORTS = 'relatorios',
+  REP_P_DATA = 'exportar-dados-rep-p',
 }

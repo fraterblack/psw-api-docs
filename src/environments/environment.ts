@@ -12,4 +12,5 @@ export const environment = {
   core_api: 'http://localhost:3001/api/core',
   timesheet_api: 'http://localhost:3002/api/timesheet',
   collector_api: 'http://localhost:3003/api/collector',
+  rep_p_report_api: 'http://localhost:3006/api/rep-p-report',
 };

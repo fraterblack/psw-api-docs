@@ -32,6 +32,10 @@ export const routes: Routes = [
         path: `${ViewRoute.REPORTS}`,
         loadChildren: () => import('./views/report/report.module').then(m => m.ReportModule)
       },
+      {
+        path: `${ViewRoute.REP_P_DATA}`,
+        loadChildren: () => import('./views/rep-p-data/rep-p-data.module').then(m => m.RepPDataModule)
+      },
     ]
   },
   { path: '**', component: NotFoundComponent }
