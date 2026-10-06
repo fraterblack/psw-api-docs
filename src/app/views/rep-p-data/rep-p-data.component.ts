@@ -64,6 +64,12 @@ export class RepPDataComponent extends AppComponent {
         type: 'number',
         description: 'Cursor de paginação (Opcional). Informe o pagination.next_cursor da resposta anterior. Omitir para a primeira página',
       },
+      {
+        name: 'afd',
+        type: 'checkbox',
+        description: 'Retorna no formato do AFD (Opcional). Inclui header e trailer referentes aos registros da página '
+          + 'e as linhas dos registros idênticas às do AFD (com hash/CRC)',
+      },
     ],
     docUrl: 'https://documenter.getpostman.com/view/44879535/2sB2jAbTrK#a70c6b6b-6d22-8fca-abe1-a3fe9b6db817',
   };
@@ -114,8 +120,8 @@ export class RepPDataComponent extends AppComponent {
 
     const rawHttpParam: any = {};
     this.endpoint.queryParams.forEach(param => {
-      // Number inputs give 0 as a number, so check against empty instead of falsy
-      if (rawParameters[param.name] !== null && rawParameters[param.name] !== '') {
+      // Number inputs give 0 as a number, so check against empty instead of falsy. Unchecked checkboxes are omitted
+      if (rawParameters[param.name] !== null && rawParameters[param.name] !== '' && rawParameters[param.name] !== false) {
         rawHttpParam[param.name] = rawParameters[param.name];
       }
     });

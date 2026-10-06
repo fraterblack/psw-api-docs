@@ -30,12 +30,21 @@
                   <strong>{{ param.name }}</strong>
                 </div>
                 <div class="col col-xl-3 col-4">
+                  <!-- Static type, so the checkbox value accessor (boolean) is used -->
                   <input
-                    [type]="param.type"
+                    *ngIf="param.type === 'checkbox'; else defaultInput"
+                    type="checkbox"
                     [formControlName]="param.name"
-                    [placeholder]="param.placeholder || ''"
-                    class="w-100 input-field"
+                    class="checkbox-field"
                   />
+                  <ng-template #defaultInput>
+                    <input
+                      [type]="param.type"
+                      [formControlName]="param.name"
+                      [placeholder]="param.placeholder || ''"
+                      class="w-100 input-field"
+                    />
+                  </ng-template>
                 </div>
                 <div class="col pt-1">
                   <small>{{ param.description }}</small>
