@@ -1,14 +1,85 @@
 #!/bin/bash
+set -euo pipefail
+
+APP_DIR=/var/www/psw-api-docs
+NODE_IMAGE=node:${NODE_VERSION:-22.23.4}-bookworm-slim
+# Mesmo cache do psw-file: pasta que contem os servicos, fora das arvores git,
+# compartilhada por todos eles (ver psw-file/docker-compose.yml). O cache guarda
+# o pacote, nao o binario nativo compilado, entao nao precisa de pasta por
+# versao de Node.
+YARN_CACHE_DIR=${YARN_CACHE_DIR:-/var/www/.yarn-cache}
+
+# O build NAO escreve no dist publicado. Sai aqui e so e promovido no final.
+# Motivo: o `ng build` apaga o output path antes de comecar
+# (--delete-output-path, default true) e leva minutos para reescreve-lo -- no
+# esquema antigo o nginx servia um diretorio vazio ou incompleto durante todo o
+# build. Fica DENTRO do APP_DIR de proposito: mesmo filesystem, entao a
+# promocao e um rename() e nao uma copia.
+STAGE_REL=.deploy-build/dist
+STAGE_DIR="$APP_DIR/$STAGE_REL"
+PUBLISHED_DIR="$APP_DIR/dist"
 
 echo "Master ref received.  Deploying master branch to production..."
-cd /var/www/psw-api-docs
+cd "$APP_DIR"
 git checkout master
 git pull
 
-export PATH=$PATH:/root:/root/bin
+# Criado aqui de proposito: se o diretorio nao existir, o Docker o cria como
+# ROOT e o container, que roda como usuario comum, falha com
+# "EACCES: permission denied, mkdir '/yarn-cache/v6'". mkdir -p e no-op se ja
+# existir.
+mkdir -p "$YARN_CACHE_DIR"
 
-# Install dependencias
-yarn install
+# Install e build num container descartavel. O repo vem por bind mount, entao a
+# saida do build e escrita direto no host. O host nao precisa mais de Node.
+#
+# --user: sem isto o container escreveria node_modules/ e a saida do build como
+# root, quebrando git e yarn no host. O uid nao tem entrada em /etc/passwd, por
+# isso HOME=/tmp -- o yarn precisa de um HOME que resolva.
+#
+# --ignore-engines: o @angular/cli 17 declara engines node ^18.13 || ^20.9, e o
+# yarn 1 trata engine incompativel de dependencia como erro fatal, nao aviso.
+#
+# O --output-path vai como argumento extra do `yarn build`: o yarn 1 anexa ao
+# final do comando do script, entao chega ao `ng build` do package.json. O
+# caminho e relativo a raiz do workspace (exigencia do Angular CLI), nao ao cwd.
+# SEM ELE o build escreve no outputPath do angular.json -- ou seja, no dist
+# publicado -- e o gate abaixo aborta por nao achar o staging.
+#
+# IMPORTANTE: o node_modules passa a ser o do container (Node 22). Nao rode
+# `yarn install` no host com outra versao de Node ou os modulos nativos quebram.
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  --volume "$APP_DIR":/app \
+  --volume "$YARN_CACHE_DIR":/yarn-cache \
+  --workdir /app \
+  --env HOME=/tmp \
+  --env YARN_CACHE_FOLDER=/yarn-cache \
+  --env NODE_OPTIONS=--max_old_space_size=4096 \
+  "$NODE_IMAGE" \
+  bash -c "
+    set -euo pipefail
+    yarn install --ignore-engines
+    yarn build --output-path='$STAGE_REL'
+  "
 
-# Build and start app
-yarn build
+# O `set -e` ja abortaria num build quebrado, mas um exit 0 nao garante saida
+# utilizavel: basta o output path ter mudado para o dist ser promovido vazio.
+if [ ! -f "$STAGE_DIR/index.html" ]; then
+    echo "ERRO: build terminou sem $STAGE_DIR/index.html. dist nao foi alterado." >&2
+    exit 1
+fi
+
+# Promocao: dois renames no mesmo filesystem, entao o dist fica indisponivel por
+# milissegundos em vez dos minutos do build. O dist.old e o rollback imediato
+# (`mv dist.old dist`) e so e descartado no deploy seguinte.
+echo "Publishing build to $PUBLISHED_DIR..."
+rm -rf "$PUBLISHED_DIR.old"
+# `if` e nao `[ -d ... ] && mv`: com set -e o teste falso derrubaria o script no
+# primeiro deploy, quando ainda nao existe dist.
+if [ -d "$PUBLISHED_DIR" ]; then
+    mv "$PUBLISHED_DIR" "$PUBLISHED_DIR.old"
+fi
+mv "$STAGE_DIR" "$PUBLISHED_DIR"
+
+echo "Deploy finished. Rollback: mv $PUBLISHED_DIR.old $PUBLISHED_DIR"
